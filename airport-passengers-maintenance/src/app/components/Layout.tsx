@@ -62,6 +62,7 @@ const styles = {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
+        position: 'sticky',
     },
     websiteName: {
         color: '#FFFFFF',
