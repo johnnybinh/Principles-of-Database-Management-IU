@@ -10,9 +10,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 <Image
                     src={airportBackground}
                     alt="Airport Background"
-                    layout="fill"
-                    objectFit="cover"
                     quality={100}
+                    style={{objectFit: "contain"}}
                     priority
                 />
             </div>
@@ -62,7 +61,7 @@ const styles = {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        position: 'sticky',
+        position: 'sticky' as 'sticky',
     },
     websiteName: {
         color: '#FFFFFF',

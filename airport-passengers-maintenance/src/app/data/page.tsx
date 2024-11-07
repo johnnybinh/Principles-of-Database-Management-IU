@@ -1,7 +1,10 @@
+"use client";
+import Chart from "./chart";
+
 export default function Data() {
-    return (
-        <div>
-            <h1>Data</h1>
-        </div>
-    );
+  return (
+    <div>
+      <Chart/>
+    </div>
+  );
 }
