@@ -33,7 +33,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts"
-  ],
+, "src/app/data/chart.jsx"  ],
   "exclude": [
     "node_modules"
   ]
