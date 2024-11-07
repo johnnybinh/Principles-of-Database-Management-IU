@@ -11,7 +11,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                     src={airportBackground}
                     alt="Airport Background"
                     quality={100}
-                    style={{objectFit: "contain"}}
+                    style={{objectFit: "cover"}}
                     priority
                 />
             </div>
