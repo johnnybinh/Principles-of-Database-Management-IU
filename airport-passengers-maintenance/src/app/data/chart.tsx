@@ -61,13 +61,13 @@ export default function Chart({
 
   useEffect(() => {
     if (gx.current) {
-      d3.select(gx.current).call(d3.axisBottom(x));
+      d3.select(gx.current).call(d3.axisBottom(x)).attr("color", "black");
     }
   }, [gx, x]);
 
   useEffect(() => {
     if (gy.current) {
-      d3.select(gy.current).call(d3.axisLeft(y));
+      d3.select(gy.current).call(d3.axisLeft(y)).attr("color", "black");
     }
   }, [gy, y]);
 
