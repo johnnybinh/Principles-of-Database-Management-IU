@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect} from 'react';
 import * as d3 from 'd3';
 
     interface DataPoint {
@@ -9,7 +9,7 @@ import * as d3 from 'd3';
     const BarChart: React.FC = () => {
         const [dataset, setDataset] = useState<DataPoint[]>([]);
         const [year, setYear] = useState("2020");
-        const [sortOrder, setSortOrder] = useState("ascending");
+        const [sortOrder, setSortOrder] = useState("Ascending");
         const [topN, setTopN] = useState(10);
 
         useEffect(()=>{
@@ -20,14 +20,25 @@ import * as d3 from 'd3';
             renderChart();
         }, [dataset, sortOrder, topN]);
 
-        const loadData = async (selectedYear: string) =>{
-            try{
-                const data = await d3.csv(`./dataset/csv${selectedYear}.csv`, d=> ({
-                    Entity: d.Entity,
-                    Flights: +d.Flights
+        const loadData = async (selectedYear: string) => {
+            try {
+                const rawData = await d3.csv(`/dataset/csv${selectedYear}.csv`, (d: any) => ({
+                    Entity: d.Entity as string,
+                    Flights: +d.Flights,
                 }));
-            } catch (error){
-                console.error("Error loading data: ",error);
+
+                const filteredData = rawData.filter((d) => d.Entity && d.Entity !== "-Total Network Manager Area" && !isNaN(d.Flights));
+
+                const aggreatedData = d3.rollups(
+                    filteredData,
+                    (group) => d3.sum(group, d => d.Flights), //Sum Flights of each entity
+                    (d) => d.Entity
+                ).map(([Entity, Flights]) => ({Entity, Flights})); // Convert back to array of objects
+
+                setDataset(aggreatedData);
+                
+            } catch (error) {
+                console.error("Error loading data:", error);
             }
         };
 
@@ -44,14 +55,18 @@ import * as d3 from 'd3';
         const renderChart = () => {
             // Clear previous chart
             d3.select("#barChart").selectAll("*").remove();
-
+       
             const sortedData = [...dataset]
-                .sort((a,b) => (sortOrder === "ascending" ? a.Flights-b.Flights : b.Flights-a.Flights))
-                .slice(0,topN);
-            
-            const margin = {top: 40, right: 20, bottom: 40, left: 60};
-            const width = 1000 -margin.left-margin.right;
-            const height = 500 -margin.top-margin.bottom;
+            .sort((a, b) =>
+                sortOrder === "Descending" ? d3.descending(a.Flights, b.Flights) : d3.ascending(a.Flights, b.Flights)
+            )
+            .slice(0, topN);
+
+            console.log("Sorted and sliced data for rendering:", sortedData);
+
+            const margin = {top: 40, right: 20, bottom: 100, left: 60};
+            const width = 1500 -margin.left-margin.right;
+            const height = 600 -margin.top-margin.bottom;
 
             const svg = d3
                     .select("#barChart")
@@ -105,15 +120,23 @@ import * as d3 from 'd3';
                 .attr("class", "y-axis")
                 .call(d3.axisLeft(y).ticks(10));
 
+            // Add Chart title
+            svg.append("text")
+            .attr("x", width / 2)
+            .attr("y", margin.top/2 - 30)
+            .attr("text-anchor", "middle")
+            .attr("font-size", "16px")
+            .attr("font-weight", "bold")
+            .text(`Flights ${year} (Arr/Dep flights)`);
+
         };
 
     return(
         <div>
-            <h2>{`Flights ${year} (Arr/Dep Flights)`}</h2>
         <div className='mb-5'>
             <label>
                 Choose Dataset:
-                <select value={year} onChange={handleYearChange}>
+                <select value={year} onChange={handleYearChange} className='text-black'>
                     <option value="2020">2020</option>
                     <option value="2021">2021</option>
                     <option value="2022">2022</option>
@@ -122,14 +145,14 @@ import * as d3 from 'd3';
             </label>
             <label className='ml-5'>
                 Sort Order:
-                <select value={sortOrder} onChange={handleSortOrderChange}>
+                <select value={sortOrder} onChange={handleSortOrderChange} className='text-black'>
                     <option value="Ascending">Ascending</option>
                     <option value="Descending">Descending</option>
                 </select>
             </label>
             <label className='ml-5'>
                 Show Top:
-                <select value={topN} onChange={handleTopNChange}>
+                <select value={topN} onChange={handleTopNChange} className='text-black'>
                     <option value={10}>Top 10</option>
                     <option value={20}>Top 20</option>
                 </select>
