@@ -22,7 +22,7 @@ export default function Chart({
   useEffect(() => {
     // Debug CSV loading
     d3.csv("./dataset/test.csv", d3.autoType)
-      .then((prased_data: d3.DSVParsedArray<d3.DSVRowString<string>>) => {
+      .then((prased_data: d3.DSVParsedArray<object>) => {
         console.log("Raw CSV data:", prased_data); // Check what's being loaded
         
         if (!prased_data.length) {
