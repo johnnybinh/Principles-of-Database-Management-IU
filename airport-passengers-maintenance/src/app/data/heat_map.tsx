@@ -14,7 +14,7 @@ export default function HeatMap({
   const [data, set_data] = useState<HeatMapData[]>([]);
   const [year, set_year] = useState<string>("2023");
   const [season, set_season] = useState<string>("Spring");
-  const [country, set_country] = useState<string>("A_B");
+  const [country, set_country] = useState<string>("A to B");
 
   const handle_year_change = (e: React.ChangeEvent<HTMLSelectElement>) => {
     set_year(e.target.value);
@@ -38,13 +38,13 @@ export default function HeatMap({
 
   // Define country group mapping with duplicates removed
   const country_map: { [key: string]: string[] } = {
-    'A_B': Array.from(new Set(['Austria', 'Armenia', 'Belgium', 'Bosnia-Herzegovina', 'Bulgaria'])),
-    'C_F': Array.from(new Set(['Croatia', 'Cyprus', 'Czech Republic', 'Denmark', 'Estonia', 'Finland', 'France'])),
-    'G_I': Array.from(new Set(['Georgia', 'Germany', 'Greece', 'Hungary', 'Ireland', 'Israel', 'Italy'])),
-    'L_M': Array.from(new Set(['Latvia', 'Lithuania', 'Luxembourg', 'Malta', 'Moldova', 'Morocco'])),
-    'N_R': Array.from(new Set(['Netherlands', 'North Macedonia', 'Norway', 'Poland', 'Portugal', 'Romania'])),
+    'A to B': Array.from(new Set(['Austria', 'Armenia', 'Belgium', 'Bosnia-Herzegovina', 'Bulgaria'])),
+    'C to F': Array.from(new Set(['Croatia', 'Cyprus', 'Czech Republic', 'Denmark', 'Estonia', 'Finland', 'France'])),
+    'G to I': Array.from(new Set(['Georgia', 'Germany', 'Greece', 'Hungary', 'Ireland', 'Israel', 'Italy'])),
+    'L to M': Array.from(new Set(['Latvia', 'Lithuania', 'Luxembourg', 'Malta', 'Moldova', 'Morocco'])),
+    'N to R': Array.from(new Set(['Netherlands', 'North Macedonia', 'Norway', 'Poland', 'Portugal', 'Romania'])),
     'S': Array.from(new Set(['Serbia & Montenegro', 'Slovakia', 'Slovenia', 'Spain', 'Sweden', 'Switzerland'])),
-    'T_Z': Array.from(new Set(['Turkey', 'Ukraine', 'United Kingdom', '-Total Network Manager Area']))
+    'T to Z': Array.from(new Set(['Turkey', 'Ukraine', 'United Kingdom', '-Total Network Manager Area']))
   };
 
   // Initialize tooltip once when component mounts
@@ -172,8 +172,8 @@ export default function HeatMap({
 
     // Define diverging color scale based on the ratio between flights and flights_2019_reference
     const ratios = filtered_data.map(d => d.flights / d.flights_2019_reference);
-    const max_ratio = d3.max(ratios) || 1;
-    const min_ratio = d3.min(ratios) || 1;
+    const max_ratio = d3.max(ratios) || 1; // Ensure max_ratio is at least 1
+    const min_ratio = d3.min(ratios) || 1; // Ensure min_ratio is at most 1
 
     const color = d3.scaleDiverging<string>()
       .interpolator(d3.interpolateRdBu)
@@ -196,7 +196,7 @@ export default function HeatMap({
         <div>Week: ${d.week}</div>
         <div>Flights: ${d.flights}</div>
         <div>Flights 2019: ${d.flights_2019_reference}</div>
-        <div>Ratio: ${(d.flights / d.flights_2019_reference).toFixed(3)}</div>
+        <div>Ratio: ${(d.flights / d.flights_2019_reference * 100).toFixed(2)}%</div>
       `)
         .style('left', `${event.pageX + 10}px`)
         .style('top', `${event.pageY + 10}px`);
@@ -280,7 +280,7 @@ export default function HeatMap({
       .style('fill', d => color(d.flights / d.flights_2019_reference))
       .style('stroke', 'none') // No stroke by default
       .style('stroke-width', '0') // No stroke width by default
-      .style('opacity', 0.8)
+      .style('opacity', 0.9)
       // Tooltip event handlers with dynamic stroke
       .on('mouseover', handle_mouseover)
       .on('mousemove', handle_mousemove)
