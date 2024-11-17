@@ -91,13 +91,40 @@ export default function HeatMap({
           day: d['Day'],
           flights: +d['Flights'],
           day_2019: d['Day 2019'],
-          flights_2019_reference: +d['Flights 2019 (Reference)'],
+          flights_2019_reference: +d['Flights 2019 (Reference)'], // Ensure this matches your CSV exactly
           percent_vs_2019_daily: +d['% vs 2019 (Daily)'],
           day_previous_year: d['Day Previous Year'],
           flights_previous_year: +d['Flights Previous Year']
         })) as HeatMapData[];
-        console.log(`Loaded CSV for year ${year}:`, parsed_data);
-        set_data(parsed_data);
+
+        // Aggregate data: sum flights per entity per week
+        const aggregated_data = Array.from(
+          d3.rollup(
+            parsed_data,
+            v => ({
+              flights: d3.sum(v, d => d.flights),
+              flights_2019_reference: d3.sum(v, d => d.flights_2019_reference)
+            }),
+            d => d.entity,
+            d => d.week
+          ),
+          ([entity, weeksMap]) => {
+            return Array.from(weeksMap, ([week, sums]) => ({
+              entity,
+              week,
+              flights: sums.flights,
+              flights_2019_reference: sums.flights_2019_reference,
+              day: '',
+              day_2019: '',
+              percent_vs_2019_daily: 0,
+              day_previous_year: '',
+              flights_previous_year: 0
+            }));
+          }
+        ).flat();
+
+        console.log(`Loaded and aggregated CSV for year ${year}:`, aggregated_data);
+        set_data(aggregated_data);
       } catch (error) {
         console.error(`Error loading CSV for year ${year}:`, error);
       }
@@ -139,7 +166,7 @@ export default function HeatMap({
     svg.attr('width', svg_width).attr('height', svg_height);
 
     const entities = Array.from(new Set(filtered_data.map(d => d.entity)));
-    console.log('Entities:', entities);
+    // console.log('Entities:', entities);
     const weeks = Array.from(new Set(filtered_data.map(d => d.week))).sort((a, b) => a - b);
 
     const x = d3.scaleBand()
@@ -152,19 +179,28 @@ export default function HeatMap({
       .range([margin_top, svg_height - margin_bottom])
       .padding(0.05);
 
-    const color = d3.scaleSequential(d3.interpolateBlues)
-      .domain([0, d3.max(filtered_data, d => d.flights) || 0]);
+    // Define diverging color scale based on the ratio between flights and flights_2019_reference
+    const ratios = filtered_data.map(d => d.flights / d.flights_2019_reference);
+    const max_ratio = d3.max(ratios) || 1;
+    const min_ratio = d3.min(ratios) || 1;
+
+    const color = d3.scaleDiverging<string>()
+      .interpolator(d3.interpolateRdBu)
+      .domain([min_ratio, 1, max_ratio]);
 
     // Access the tooltip
     const tooltip = d3.select(tooltipRef.current);
 
     // Define mouse event handlers
     const handle_mouseover = (event: MouseEvent, d: HeatMapData) => {
+      
       tooltip.transition().duration(200).style('opacity', 1);
       tooltip.html(`
         <div><strong>${d.entity}</strong></div>
         <div>Week: ${d.week}</div>
         <div>Flights: ${d.flights}</div>
+        <div>Flights 2019: ${d.flights_2019_reference}</div>
+        <div>Ratio: ${(d.flights / d.flights_2019_reference).toFixed(3)}</div>
       `)
         .style('left', `${event.pageX + 10}px`)
         .style('top', `${event.pageY + 10}px`);
@@ -210,7 +246,7 @@ export default function HeatMap({
       .attr('y', d => y(d.entity)!)
       .attr('width', x.bandwidth())
       .attr('height', y.bandwidth())
-      .style('fill', d => color(d.flights))
+      .style('fill', d => color(d.flights / d.flights_2019_reference))
       .style('stroke', 'white')
       // Tooltip event handlers
       .on('mouseover', handle_mouseover)
@@ -222,7 +258,7 @@ export default function HeatMap({
   return (
     <div>
       <div className="mb-4 flex items-center">
-        <label htmlFor="year-selection" className="mr-2 text-black">Choose the year of dataset:</label>
+        <label htmlFor="year-selection" className="mr-2 text-black">Year of data:</label>
         <select
           id="year-selection"
           value={year}
@@ -235,7 +271,7 @@ export default function HeatMap({
           <option value="2023">2023</option>
         </select>
 
-        <label htmlFor="season-selection" className="mr-2 text-black">Choose the season for the data:</label>
+        <label htmlFor="season-selection" className="mr-2 text-black">Season:</label>
         <select
           id="season-selection"
           value={season}
@@ -248,7 +284,7 @@ export default function HeatMap({
           <option value="Winter">Winter (Weeks 40-52)</option>
         </select>
 
-        <label htmlFor="country-selection" className="mr-2 text-black">Choose the country group:</label>
+        <label htmlFor="country-selection" className="mr-2 text-black">Country group:</label>
         <select
           id="country-selection"
           value={country}
@@ -279,7 +315,7 @@ export default function HeatMap({
             <p className="text-red-500">No data available for the selected season and country group.</p>
           );
         }
-        return <svg ref={heatmap_ref}></svg>;
+        return <svg ref={heatmap_ref} width="100%" height="auto"></svg>;
       })()}
     </div>
   );
