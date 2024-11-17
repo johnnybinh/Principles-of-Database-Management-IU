@@ -1,15 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
-import { HeatMapData } from '../types/types';
-
-interface HeatMapProps {
-    width?: string; // Width in rem
-    height?: string; // Height in rem
-    margin_top?: number;
-    margin_right?: number; 
-    margin_bottom?: number; 
-    margin_left?: number; 
-}
+import { HeatMapData, HeatMapProps } from '../types/types';
 
 export default function HeatMap({
   width = '50rem', 
@@ -17,13 +8,13 @@ export default function HeatMap({
   margin_top = 20,
   margin_right = 20,
   margin_bottom = 30,
-  margin_left = 40
+  margin_left = 62
 }: HeatMapProps) {
   const heatmap_ref = useRef<SVGSVGElement | null>(null);
   const [data, set_data] = useState<HeatMapData[]>([]);
   const [year, set_year] = useState<string>("2023");
   const [season, set_season] = useState<string>("Spring");
-  const [country, set_country] = useState<string>("All");
+  const [country, set_country] = useState<string>("A_B");
 
   const handle_year_change = (e: React.ChangeEvent<HTMLSelectElement>) => {
     set_year(e.target.value);
@@ -123,7 +114,7 @@ export default function HeatMap({
           }
         ).flat();
 
-        console.log(`Loaded and aggregated CSV for year ${year}:`, aggregated_data);
+        //console.log(`Loaded and aggregated CSV for year ${year}:`, aggregated_data);
         set_data(aggregated_data);
       } catch (error) {
         console.error(`Error loading CSV for year ${year}:`, error);
@@ -191,9 +182,14 @@ export default function HeatMap({
     // Access the tooltip
     const tooltip = d3.select(tooltipRef.current);
 
-    // Define mouse event handlers
+    // Define mouse event handlers with dynamic stroke
     const handle_mouseover = (event: MouseEvent, d: HeatMapData) => {
-      
+      // Add stroke to the hovered rectangle
+      d3.select(event.currentTarget as SVGRectElement)
+        .style('stroke', 'black') // Set stroke color
+        .style('stroke-width', '3'); // Set stroke width
+    
+      // Show tooltip
       tooltip.transition().duration(200).style('opacity', 1);
       tooltip.html(`
         <div><strong>${d.entity}</strong></div>
@@ -204,18 +200,48 @@ export default function HeatMap({
       `)
         .style('left', `${event.pageX + 10}px`)
         .style('top', `${event.pageY + 10}px`);
-      console.log('Mouseover:', d);
     };
-
+    
     const handle_mousemove = (event: MouseEvent) => {
       tooltip
         .style('left', `${event.pageX + 10}px`)
         .style('top', `${event.pageY + 10}px`);
     };
-
-    const handle_mouseleave = () => {
+    
+    const handle_mouseleave = (event: MouseEvent, d: HeatMapData) => {
+      // Remove stroke from the rectangle when mouse leaves
+      d3.select(event.currentTarget as SVGRectElement)
+        .style('stroke', 'none') // Remove stroke color
+        .style('stroke-width', '0'); // Remove stroke width
+    
+      // Hide tooltip
       tooltip.transition().duration(200).style('opacity', 0);
-    };  
+    };
+
+    // Text wrapping function
+    // const wrap_text = (text: any, width: number) => {
+    //   text.each(function(this: SVGTextElement) {
+    //     const textElement = d3.select(this);
+    //     const words = textElement.text().split(/\s+/).reverse();
+    //     let word: string | undefined;
+    //     let line: string[] = [];
+    //     let lineHeight = 1.1; 
+    //     const y = textElement.attr("y");
+    //     const dy = parseFloat(textElement.attr("dy")) || 0;
+    //     let tspan = textElement.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", `${dy}em`);
+        
+    //     while ((word = words.pop())) {
+    //       line.push(word);
+    //       tspan.text(line.join(" "));
+    //       if (tspan.node()?.getComputedTextLength()! > width) {
+    //         line.pop();
+    //         tspan.text(line.join(" "));
+    //         line = [word];
+    //         tspan = textElement.append("tspan").attr("x", 0).attr("y", y).attr("dy", `${++lineHeight}em`).text(word);
+    //       }
+    //     }
+    //   });
+    // };
 
     // X Axis
     svg.append('g')
@@ -224,20 +250,23 @@ export default function HeatMap({
       .selectAll("text")
       .attr("transform", "rotate(-45)")
       .style("text-anchor", "end")
-      .style("fill", "black"); // Set text color to black
+      .style("fill", "black")
+      .style("font-size", "13"); // Set text color to black
 
-    // Y Axis
+    // Y Axis 
     svg.append('g')
       .attr('transform', `translate(${margin_left},0)`)
-      .call(d3.axisLeft(y))
+      .call(d3.axisLeft(y).tickSize(0))
       .selectAll("text")
-      .style("fill", "black"); // Set text color to black
+      .style("fill", "black")
+      .style("text-anchor", "end")
+      .style("font-size", "10"); 
 
     // Axis lines
     svg.selectAll(".domain, .tick line")
       .style("stroke", "black"); // Set axis lines to black
 
-    // Heatmap cells
+    // Heatmap cells with rounded corners and dynamic stroke on hover
     svg.selectAll()
       .data(filtered_data, (d: any) => `${d.entity}:${d.week}`)
       .enter()
@@ -246,9 +275,13 @@ export default function HeatMap({
       .attr('y', d => y(d.entity)!)
       .attr('width', x.bandwidth())
       .attr('height', y.bandwidth())
+      .attr('rx', 3) // Set horizontal border radius
+      .attr('ry', 3) // Set vertical border radius
       .style('fill', d => color(d.flights / d.flights_2019_reference))
-      .style('stroke', 'white')
-      // Tooltip event handlers
+      .style('stroke', 'none') // No stroke by default
+      .style('stroke-width', '0') // No stroke width by default
+      .style('opacity', 0.8)
+      // Tooltip event handlers with dynamic stroke
       .on('mouseover', handle_mouseover)
       .on('mousemove', handle_mousemove)
       .on('mouseleave', handle_mouseleave);
@@ -257,47 +290,66 @@ export default function HeatMap({
 
   return (
     <div>
-      <div className="mb-4 flex items-center">
-        <label htmlFor="year-selection" className="mr-2 text-black">Year of data:</label>
-        <select
-          id="year-selection"
-          value={year}
-          onChange={handle_year_change}
-          className="p-2 border border-gray-300 rounded text-black mr-4"
-        >
-          <option value="2020">2020</option>
-          <option value="2021">2021</option>
-          <option value="2022">2022</option>
-          <option value="2023">2023</option>
-        </select>
+      <h2 className="text-3xl font-semibold mb-4 text-center text-black">
+        Fluctuation in number of flights in {year} compared to 2019
+        </h2>
+      <p className="mb-6 text-center text-gray-600">
+        Explore flight trends across European countries by selecting the desired year, season, and country group. 
+        Compare the data with the 2019 reference to gain insights into aviation patterns.
+      </p>
 
-        <label htmlFor="season-selection" className="mr-2 text-black">Season:</label>
-        <select
-          id="season-selection"
-          value={season}
-          onChange={handle_season_change}
-          className="p-2 border border-gray-300 rounded text-black mr-4"
-        >
-          <option value="Spring">Spring (Weeks 1-13)</option>
-          <option value="Summer">Summer (Weeks 14-26)</option>
-          <option value="Fall">Fall (Weeks 27-39)</option>
-          <option value="Winter">Winter (Weeks 40-52)</option>
-        </select>
+      <div className="mb-6 flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-6">
+        
+        {/* Year Selection */}
+        <div className="flex flex-col items-center">
+          <label htmlFor="year-selection" className="mb-2 text-lg font-medium text-black">Year of Data:</label>
+          <select
+            id="year-selection"
+            value={year}
+            onChange={handle_year_change}
+            className="px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+          >
+            <option value="2020">2020</option>
+            <option value="2021">2021</option>
+            <option value="2022">2022</option>
+            <option value="2023">2023</option>
+          </select>
+        </div>
 
-        <label htmlFor="country-selection" className="mr-2 text-black">Country group:</label>
-        <select
-          id="country-selection"
-          value={country}
-          onChange={handle_country_change}
-          className="p-2 border border-gray-300 rounded text-black"
-        >
-          <option value="All">All</option>
-          {Object.keys(country_map).map(group => (
-            <option key={group} value={group}>
-              {group} ({country_map[group].length} countries)
-            </option>
-          ))}
-        </select>
+        {/* Season Selection */}
+        <div className="flex flex-col items-center">
+          <label htmlFor="season-selection" className="mb-2 text-lg font-medium text-black">Season:</label>
+          <select
+            id="season-selection"
+            value={season}
+            onChange={handle_season_change}
+            className="px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 text-black"
+          >
+            <option value="Spring">Spring (Weeks 1-13)</option>
+            <option value="Summer">Summer (Weeks 14-26)</option>
+            <option value="Fall">Fall (Weeks 27-39)</option>
+            <option value="Winter">Winter (Weeks 40-52)</option>
+          </select>
+        </div>
+
+        {/* Country Group Selection */}
+        <div className="flex flex-col items-center">
+          <label htmlFor="country-selection" className="mb-2 text-lg font-medium text-black">Country Group:</label>
+          <select
+            id="country-selection"
+            value={country}
+            onChange={handle_country_change}
+            className="px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 text-black"
+          >
+            <option value="All">All</option>
+            {Object.keys(country_map).map(group => (
+              <option key={group} value={group}>
+                {group} ({country_map[group].length} countries)
+              </option>
+            ))}
+          </select>
+        </div>
+        
       </div>
 
       {(() => {
@@ -312,10 +364,10 @@ export default function HeatMap({
 
         if (filtered_data.length === 0) {
           return (
-            <p className="text-red-500">No data available for the selected season and country group.</p>
+            <p className="text-red-500 text-center">No data available for the selected season and country group.</p>
           );
         }
-        return <svg ref={heatmap_ref} width="100%" height="auto"></svg>;
+        return <svg ref={heatmap_ref} className="block mx-auto"></svg>;
       })()}
     </div>
   );

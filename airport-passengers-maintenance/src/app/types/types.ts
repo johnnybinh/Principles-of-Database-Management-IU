@@ -9,3 +9,11 @@ export interface HeatMapData {
   day_previous_year: string;
   flights_previous_year: number;
 }
+export interface HeatMapProps {
+  width?: string; // Width in rem
+  height?: string; // Height in rem
+  margin_top?: number;
+  margin_right?: number; 
+  margin_bottom?: number; 
+  margin_left?: number; 
+}

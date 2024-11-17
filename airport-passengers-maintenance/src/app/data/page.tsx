@@ -9,9 +9,6 @@ export default function Data() {
       <div className="w-full max-w-6xl bg-neutral-50 rounded-lg shadow-lg p-6 flex justify-center items-center">
         <HeatMap/>
       </div>
-      {/* <div className="flex justify-center h-screen">
-        <HeatMap/>
-      </div> */}
     </div>
   );
 }
