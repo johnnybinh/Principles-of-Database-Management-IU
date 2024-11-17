@@ -22,7 +22,7 @@ export default function Chart({
   useEffect(() => {
     // Debug CSV loading
     d3.csv("./dataset/test.csv", d3.autoType)
-      .then((prased_data: d3.DSVParsedArray<d3.DSVRowString<string>>) => {
+      .then((prased_data: d3.DSVParsedArray<object>) => {
         console.log("Raw CSV data:", prased_data); // Check what's being loaded
         
         if (!prased_data.length) {
@@ -61,13 +61,13 @@ export default function Chart({
 
   useEffect(() => {
     if (gx.current) {
-      d3.select(gx.current).call(d3.axisBottom(x));
+      d3.select(gx.current).call(d3.axisBottom(x)).attr("color", "black");
     }
   }, [gx, x]);
 
   useEffect(() => {
     if (gy.current) {
-      d3.select(gy.current).call(d3.axisLeft(y));
+      d3.select(gy.current).call(d3.axisLeft(y)).attr("color", "black");
     }
   }, [gy, y]);
 
