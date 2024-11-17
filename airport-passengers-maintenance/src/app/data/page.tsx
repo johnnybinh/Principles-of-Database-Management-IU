@@ -1,6 +1,7 @@
 "use client";
 import Chart from "./chart";
 import HeatMap from "./heat_map";
+import FlightInYear from "./flight_in_year";
 
 export default function Data() {
   return (
@@ -9,5 +10,9 @@ export default function Data() {
       <div className="w-full max-w-6xl bg-neutral-50 rounded-lg shadow-lg p-6 flex justify-center items-center">
         <HeatMap/>
       </div>
+      <div className="w-full max-w-6xl bg-neutral-50 rounded-lg shadow-lg p-6 flex justify-center items-center mt-8">
+        <FlightInYear/>
+      </div>
+    </div>
   );
 }
