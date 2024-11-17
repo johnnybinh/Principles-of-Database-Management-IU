@@ -47,7 +47,7 @@ export default function HeatMap({
 
   // Define country group mapping with duplicates removed
   const country_map: { [key: string]: string[] } = {
-    'A_B': Array.from(new Set(['Albania', 'Austria', 'Armenia', 'Belgium', 'Bosnia-Herzegovina', 'Bulgaria'])),
+    'A_B': Array.from(new Set(['Austria', 'Armenia', 'Belgium', 'Bosnia-Herzegovina', 'Bulgaria'])),
     'C_F': Array.from(new Set(['Croatia', 'Cyprus', 'Czech Republic', 'Denmark', 'Estonia', 'Finland', 'France'])),
     'G_I': Array.from(new Set(['Georgia', 'Germany', 'Greece', 'Hungary', 'Ireland', 'Israel', 'Italy'])),
     'L_M': Array.from(new Set(['Latvia', 'Lithuania', 'Luxembourg', 'Malta', 'Moldova', 'Morocco'])),
@@ -55,6 +55,31 @@ export default function HeatMap({
     'S': Array.from(new Set(['Serbia & Montenegro', 'Slovakia', 'Slovenia', 'Spain', 'Sweden', 'Switzerland'])),
     'T_Z': Array.from(new Set(['Turkey', 'Ukraine', 'United Kingdom', '-Total Network Manager Area']))
   };
+
+  // Initialize tooltip once when component mounts
+  const tooltipRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    // Create the tooltip div and append to body
+    const tooltip = d3.select('body').append('div')
+      .attr('class', 'tooltip')
+      .style('position', 'absolute')
+      .style('padding', '0.5rem')
+      .style('background', 'rgba(0, 0, 0, 0.7)')
+      .style('color', 'white')
+      .style('border-radius', '4px')
+      .style('pointer-events', 'none')
+      .style('opacity', 0)
+      .style('font-size', '0.875rem')
+      .style('z-index', '10'); // Ensure tooltip is above other elements
+
+    tooltipRef.current = tooltip.node();
+
+    // Cleanup tooltip on component unmount
+    return () => {
+      tooltip.remove();
+    };
+  }, []);
 
   useEffect(() => {
     const fetch_data = async () => {
@@ -130,6 +155,32 @@ export default function HeatMap({
     const color = d3.scaleSequential(d3.interpolateBlues)
       .domain([0, d3.max(filtered_data, d => d.flights) || 0]);
 
+    // Access the tooltip
+    const tooltip = d3.select(tooltipRef.current);
+
+    // Define mouse event handlers
+    const handle_mouseover = (event: MouseEvent, d: HeatMapData) => {
+      tooltip.transition().duration(200).style('opacity', 1);
+      tooltip.html(`
+        <div><strong>${d.entity}</strong></div>
+        <div>Week: ${d.week}</div>
+        <div>Flights: ${d.flights}</div>
+      `)
+        .style('left', `${event.pageX + 10}px`)
+        .style('top', `${event.pageY + 10}px`);
+      console.log('Mouseover:', d);
+    };
+
+    const handle_mousemove = (event: MouseEvent) => {
+      tooltip
+        .style('left', `${event.pageX + 10}px`)
+        .style('top', `${event.pageY + 10}px`);
+    };
+
+    const handle_mouseleave = () => {
+      tooltip.transition().duration(200).style('opacity', 0);
+    };  
+
     // X Axis
     svg.append('g')
       .attr('transform', `translate(0,${svg_height - margin_bottom})`)
@@ -160,7 +211,11 @@ export default function HeatMap({
       .attr('width', x.bandwidth())
       .attr('height', y.bandwidth())
       .style('fill', d => color(d.flights))
-      .style('stroke', 'white');
+      .style('stroke', 'white')
+      // Tooltip event handlers
+      .on('mouseover', handle_mouseover)
+      .on('mousemove', handle_mousemove)
+      .on('mouseleave', handle_mouseleave);
 
   }, [data, season, country, width, height, margin_top, margin_right, margin_bottom, margin_left, year]);
 
