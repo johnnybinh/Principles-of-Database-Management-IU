@@ -1,5 +1,4 @@
 "use client";
-import Chart from "./chart";
 import HeatMap from "./heat_map";
 import FlightInYear from "./flight_in_year";
 
