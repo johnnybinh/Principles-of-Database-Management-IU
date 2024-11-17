@@ -1,5 +1,6 @@
 import React, { useState, useEffect} from 'react';
 import * as d3 from 'd3';
+import './bar_chart.css'
 
     interface DataPoint {
         Entity: string;
@@ -8,8 +9,8 @@ import * as d3 from 'd3';
 
     const BarChart: React.FC = () => {
         const [dataset, setDataset] = useState<DataPoint[]>([]);
-        const [year, setYear] = useState("2020");
-        const [sortOrder, setSortOrder] = useState("Ascending");
+        const [year, setYear] = useState("2023");
+        const [sortOrder, setSortOrder] = useState("Descending");
         const [topN, setTopN] = useState(10);
 
         useEffect(()=>{
@@ -55,8 +56,12 @@ import * as d3 from 'd3';
         const renderChart = () => {
             // Clear previous chart
             d3.select("#barChart").selectAll("*").remove();
+
+            const rankedData = [...dataset]
+                                .sort((a, b) => d3.descending(a.Flights, b.Flights))
+                                .map((d, index) => ({ ...d, rank: index + 1 })); // Assign rank based on descending order
        
-            const sortedData = [...dataset]
+            const sortedData = [...rankedData]
             .sort((a, b) =>
                 sortOrder === "Descending" ? d3.descending(a.Flights, b.Flights) : d3.ascending(a.Flights, b.Flights)
             )
@@ -65,8 +70,8 @@ import * as d3 from 'd3';
             console.log("Sorted and sliced data for rendering:", sortedData);
 
             const margin = {top: 40, right: 20, bottom: 100, left: 60};
-            const width = 1500 -margin.left-margin.right;
-            const height = 600 -margin.top-margin.bottom;
+            const width = 1000 -margin.left-margin.right;
+            const height = 500 -margin.top-margin.bottom;
 
             const svg = d3
                     .select("#barChart")
@@ -88,6 +93,21 @@ import * as d3 from 'd3';
                     .nice()
                     .range([height, 0]);
             
+            {/*const colorScale = d3
+                                .scaleOrdinal<string>()
+                                .domain([`${d3.max(sortedData, (d) => d.Flights)}`,
+                                `${d3.max(sortedData, (d) => d.Flights)! * 0.75}`,
+                                `${d3.max(sortedData, (d) => d.Flights)! * 0.5}`,
+                                `${d3.max(sortedData, (d) => d.Flights)! * 0.25}`,
+                                "0",])
+                                .range(['#2171b5','#4292c6','#6baed6','#9ecae1','#c6dbef']);*/}
+
+            // Tooltip setup
+            const tooltip = d3
+            .select("#barChart")
+            .append("div")
+            .attr("class", "tooltip");
+      
             // Draw bars with transition
             svg 
                 .append("g")
@@ -98,71 +118,115 @@ import * as d3 from 'd3';
                 .attr("y", height) // Start from the bottom for the transition
                 .attr("width", x.bandwidth())
                 .attr("height", 0) // Start width height 0 for transition
-                .attr("fill", "#2171b5")
+                .attr("fill", '#6baed6') 
+                .on("mouseover", (event, d) => {
+                    const rank = rankedData.find((data) => data.Entity === d.Entity)?.rank;
+                    tooltip
+                        .html(`
+                            <strong>${d.Entity}</strong><br>Total Flights: ${d.Flights}<br>Rank: ${rank}
+                        `)
+                        .style("opacity", 1)
+                        .style("left", `${event.pageX + 10}px`)
+                        .style("top", `${event.pageY - 20}px`);
+                })
+                .on("mousemove", (event) => {
+                    tooltip
+                        .style("left", `${event.pageX + 10}px`)
+                        .style("top", `${event.pageY - 20}px`);
+                })
+                .on("mouseout", () => {
+                    tooltip.style("opacity", 0);
+                })
                 .transition()
                 .duration(800)
                 .attr("y", d => y(d.Flights))
                 .attr("height", d => height - y(d.Flights));
 
-            // Add hover effect
 
             svg 
                 .append("g")
                 .attr("class", "x-axis")
+                .attr("color", "black")
                 .attr("transform", `translate(0,${height})`)
                 .call(d3.axisBottom(x))
                 .selectAll("text")
                 .attr("transform", "rotate(-45)")
+                .attr("color", "black")
                 .style("text-anchor", "end");
 
             svg
                 .append("g")
                 .attr("class", "y-axis")
+                .attr("color", "black")
                 .call(d3.axisLeft(y).ticks(10));
 
             // Add Chart title
-            svg.append("text")
-            .attr("x", width / 2)
-            .attr("y", margin.top/2 - 30)
-            .attr("text-anchor", "middle")
-            .attr("font-size", "16px")
-            .attr("font-weight", "bold")
-            .text(`Flights ${year} (Arr/Dep flights)`);
+            svg
+                .append("text")
+                .attr("x", width / 2)
+                .attr("y", margin.top/2 - 30)
+                .attr("text-anchor", "middle")
+                .attr("font-size", "16px")
+                .attr("font-weight", "bold")
+                .attr("color", "black")
+                .text(`Flights ${year} (Arr/Dep flights)`);
 
         };
 
     return(
         <div>
-        <div className='mb-5'>
-            <label>
-                Choose Dataset:
-                <select value={year} onChange={handleYearChange} className='text-black'>
-                    <option value="2020">2020</option>
-                    <option value="2021">2021</option>
-                    <option value="2022">2022</option>
-                    <option value="2023">2023</option>
-                </select>
-            </label>
-            <label className='ml-5'>
-                Sort Order:
-                <select value={sortOrder} onChange={handleSortOrderChange} className='text-black'>
-                    <option value="Ascending">Ascending</option>
-                    <option value="Descending">Descending</option>
-                </select>
-            </label>
-            <label className='ml-5'>
-                Show Top:
-                <select value={topN} onChange={handleTopNChange} className='text-black'>
-                    <option value={10}>Top 10</option>
-                    <option value={20}>Top 20</option>
-                </select>
-            </label>
-        </div>
+            {/* Controls container */}
+            <div className="controls">
+                <div className="control">
+                    <label htmlFor="year">Year of Data:</label>
+                    <select
+                        id="year"
+                        value={year}
+                        onChange={handleYearChange}
+                        className="dropdown"
+                    >
+                        <option value="2020">2020</option>
+                        <option value="2021">2021</option>
+                        <option value="2022">2022</option>
+                        <option value="2023">2023</option>
+                    </select>
+                </div>
+
+                <div className="control">
+                    <label htmlFor="sortOrder">Sort Order:</label>
+                    <select
+                        id="sortOrder"
+                        value={sortOrder}
+                        onChange={handleSortOrderChange}
+                        className="dropdown"
+                    >
+                        <option value="Ascending">Ascending</option>
+                        <option value="Descending">Descending</option>
+                    </select>
+                </div>
+
+                <div className="control">
+                    <label htmlFor="topN">Show Top:</label>
+                    <select
+                        id="topN"
+                        value={topN}
+                        onChange={handleTopNChange}
+                        className="dropdown"
+                    >
+                        <option value={10}>Top 10</option>
+                        <option value={20}>Top 20</option>
+                        <option value={42}>All</option>
+                    </select>
+                </div>
+            </div>
+
+        {/* Bar chart container */}
         <div id="barChart" />
     </div>
 
     );
 }
+
 export default BarChart;
 
 
