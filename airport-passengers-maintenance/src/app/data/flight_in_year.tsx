@@ -86,14 +86,14 @@ const FlightInYear: React.FC = () => {
 
   const renderChart = () => {
     // Clear previous chart
-    d3.select("#barChart").selectAll("*").remove();
+    d3.select("#bar-chart-flight-in-year").selectAll("*").remove();
 
     const margin = { top: 40, right: 20, bottom: 100, left: 60 };
     const width = 1500 - margin.left - margin.right;
     const height = 600 - margin.top - margin.bottom;
 
     const svg = d3
-      .select("#barChart")
+      .select("#bar-chart-flight-in-year")
       .append("svg")
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
@@ -222,7 +222,7 @@ const FlightInYear: React.FC = () => {
           </select>
         </label>
       </div>
-      <div id="barChart" ></div>
+      <div id="bar-chart-flight-in-year" ></div>
       <div id="tooltip" style={{ position: "absolute", display: "none", background: "#fff", border: "1px solid #ccc", padding: "5px" }} className='text-black'></div>
     </div>
   );

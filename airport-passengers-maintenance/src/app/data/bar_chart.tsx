@@ -7,7 +7,7 @@ import './bar_chart.css'
         Flights: number;
     }
 
-    const BarChart: React.FC = () => {
+    const barChart: React.FC = () => {
         const [dataset, setDataset] = useState<DataPoint[]>([]);
         const [year, setYear] = useState("2023");
         const [sortOrder, setSortOrder] = useState("Descending");
@@ -55,7 +55,7 @@ import './bar_chart.css'
 
         const renderChart = () => {
             // Clear previous chart
-            d3.select("#barChart").selectAll("*").remove();
+            d3.select("#bar-chart-min-max").selectAll("*").remove();
 
             const rankedData = [...dataset]
                                 .sort((a, b) => d3.descending(a.Flights, b.Flights))
@@ -74,7 +74,7 @@ import './bar_chart.css'
             const height = 500 -margin.top-margin.bottom;
 
             const svg = d3
-                    .select("#barChart")
+                    .select("#bar-chart-min-max")
                     .append("svg")
                     .attr("width", width + margin.left + margin.right)
                     .attr("height", height+margin.top+margin.bottom)
@@ -104,7 +104,7 @@ import './bar_chart.css'
 
             // Tooltip setup
             const tooltip = d3
-            .select("#barChart")
+            .select("#bar-chart-min-max")
             .append("div")
             .attr("class", "tooltip");
       
@@ -220,14 +220,14 @@ import './bar_chart.css'
                 </div>
             </div>
 
-        {/* Bar chart container */}
-        <div id="barChart" />
-    </div>
+            {/* Bar chart container */}
+            <div id="bar-chart-min-max" />
+        </div>
 
     );
 }
 
-export default BarChart;
+export default barChart;
 
 
 
