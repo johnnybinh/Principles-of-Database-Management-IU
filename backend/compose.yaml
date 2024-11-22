@@ -5,7 +5,7 @@ services:
       - 'MYSQL_DATABASE=pdmdb'
       - 'MYSQL_PASSWORD=123456Aa@$'
       - 'MYSQL_ROOT_PASSWORD=123456Aa@$'
-      - 'MYSQL_USER=SA'
+      - 'MYSQL_USER=root'
     ports:
       - '3307:3306/tcp'
     restart: unless-stopped
@@ -18,7 +18,7 @@ services:
   #   ports:
   #     - '1433'
 # docker pull mysql/mysql-server:latest
-# docker run -e "ACCEPT_EULA=1" -e "MSSQL_SA_PASSWORD=123456Aa@$" -e "MSSQL_PID=Developer" -e "MSSQL_USER=SA" -p 1433:1433 -d --name=pdmdb mysql/mysql-server:latest
+# docker run -e "ACCEPT_EULA=1" -e "MSSQL_SA_PASSWORD=123456Aa@$" -e "MSSQL_PID=Developer" -e "MSSQL_USER=root" -p 1433:1433 -d --name=pdmdb mysql/mysql-server:latest
 # docker-compose up -d
 # docker-compose down -d
 #port 3306
