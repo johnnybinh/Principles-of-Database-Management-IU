@@ -1,4 +1,4 @@
-package org.example.ams_be;
+package org.example.backend;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -7,10 +7,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 @SpringBootApplication
 @RestController
-public class AmsBeApplication {
+public class BackendApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(AmsBeApplication.class, args);
-    }
+	public static void main(String[] args) {
+		SpringApplication.run(BackendApplication.class, args);
+	}
+
+	@GetMapping()
+	public String hello() {
+		return "Hello World!";
+	}
 
 }
