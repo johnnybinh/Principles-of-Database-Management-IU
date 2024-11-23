@@ -23,3 +23,10 @@ public class Gate {
     private String status;
 
 }
+
+//CREATE TABLE Gate (
+//                      Gate_number INT PRIMARY KEY,
+//                      AirportID INT,
+//                      Status NVARCHAR(50),
+//                      CONSTRAINT fk_airport_gate FOREIGN KEY (AirportID) REFERENCES Airport(AirportID) ON DELETE CASCADE
+//);
