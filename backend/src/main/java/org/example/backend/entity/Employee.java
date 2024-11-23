@@ -1,7 +1,11 @@
 package org.example.backend.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 @Table(name = "Employee")
 @Entity
 public class Employee {
@@ -39,85 +43,5 @@ public class Employee {
 
     @Column(name = "Phone_Number", nullable = false)
     private String phoneNumber; // Check if phoneNumber is in the format 0xxxxxxxxx
-
-    public Long getEmployeeID() {
-        return employeeID;
-    }
-
-    public void setEmployeeID(Long employeeID) {
-        this.employeeID = employeeID;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public char getGender() {
-        return gender;
-    }
-
-    public void setGender(char gender) {
-        this.gender = gender;
-    }
-
-    public String getDateOfBirth() {
-        return dateOfBirth;
-    }
-
-    public void setDateOfBirth(String dateOfBirth) {
-        this.dateOfBirth = dateOfBirth;
-    }
-
-    public int getAge() {
-        return age;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
-
-    public double getSalary() {
-        return salary;
-    }
-
-    public void setSalary(double salary) {
-        this.salary = salary;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
 
 }

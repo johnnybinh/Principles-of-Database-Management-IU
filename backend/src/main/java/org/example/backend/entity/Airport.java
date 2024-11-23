@@ -1,7 +1,11 @@
 package org.example.backend.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 @Table(name = "Airport")
 @Entity
 public class Airport {
@@ -20,35 +24,4 @@ public class Airport {
     @Column(name = "Country", nullable = false)
     private String country;
 
-    public Long getAirportID() {
-        return airportID;
-    }
-
-    public void setAirportID(Long airportID) {
-        this.airportID = airportID;
-    }
-
-    public String getAirportName() {
-        return airportName;
-    }
-
-    public void setAirportName(String airportName) {
-        this.airportName = airportName;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
-    }
 }
