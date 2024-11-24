@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 
 @Getter
 @Setter
-@Table(name = "Gate")
+@Table(name = "gate")
 @Entity
 public class Gate {
 

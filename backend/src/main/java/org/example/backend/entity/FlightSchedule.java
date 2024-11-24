@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Table(name = "Flight_Schedule")
+@Table(name = "flight_schedule")
 @Entity
 public class FlightSchedule {
 

@@ -8,7 +8,7 @@ import java.sql.Date;
 
 @Getter
 @Setter
-@Table(name = "Booking")
+@Table(name = "booking")
 @Entity
 public class Booking {
 

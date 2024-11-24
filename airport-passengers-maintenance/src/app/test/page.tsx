@@ -1,35 +1,64 @@
-import React from 'react';
+"use client";
+import React, { useEffect, useState } from 'react';
 
 interface Test {
   id: number;
   name: string;
 }
 
-export default async function Flights() {
-  try {
-    const res = await fetch('http://localhost:8080/api/test'); // Spring Boot API URL
-    if (!res.ok) {
-      console.error('Fetch error:', res.status, res.statusText);
-      throw new Error('Network response was not ok');
-    }
-    const data = await res.json();
-    console.log('Fetched data:', data); // Log the fetched data
-    const tests: Test[] = Array.isArray(data) ? data : [];
+const Flights: React.FC = () => {
+  const [tests, setTests] = useState<Test[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
-    return (
-      <div>
-        <h1>Flight List</h1>
-        <ul>
-          {tests.map((test) => (
-            <li key={test.id}>
-              {test.name}
-            </li>
-          ))}
-        </ul>
-      </div>
-    );
-  } catch (error) {
-    console.error('Fetch error:', error);
-    return <div>Error loading flights</div>;
+  useEffect(() => {
+    const fetchTests = async () => {
+      try {
+        const res = await fetch('http://localhost:8080/api/test', {
+          headers: {
+            'Accept': 'application/json',
+          },
+        });
+
+        if (!res.ok) {
+          throw new Error(`Network response was not ok: ${res.status} ${res.statusText}`);
+        }
+
+        const data: Test[] = await res.json();
+        setTests(data);
+      } catch (err: any) {
+        console.error('Fetch error:', err);
+        setError(err.message);
+      }
+    };
+
+    fetchTests();
+  }, []);
+
+  if (error) {
+    return <div>Error: {error}</div>;
   }
-}
+
+  if (tests.length === 0) {
+    return <div>No Flights Found</div>;
+  }
+
+  return (
+    <div className="container">
+      <h1>Flight List ({tests.length} items)</h1>
+      <ul>
+        {tests.map((test) => (
+          <li key={test.id} className="flight-item">
+            #{test.id} - {test.name}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+export default Flights;
+
+// Testing the docker
+// docker exec -it backend-mysql-1 mysql -u root -p
+// USE pdmdb;
+// SELECT * FROM Test;
