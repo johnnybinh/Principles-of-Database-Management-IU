@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button"
 
 import {
@@ -13,7 +15,28 @@ import { useEffect, useState } from "react";
 
 export default function Flight() {
 
-    const table_header = ["Time Start", "Departure", "Port", "Duration", "Time End", "Destination", "Port"]
+    // State variables for input values
+    const [fromLocation, setFromLocation] = useState("");
+    const [toLocation, setToLocation] = useState("");
+    const [departureDate, setDepartureDate] = useState("");
+    const [arrivalDate, setArrivalDate] = useState("");
+    const [extractedData, setExtractedData] = useState<{ from: string; to: string; departure: string; arrival: string } | null>(null);
+
+    const table_header = ["Time Start", "Departure", "Port", "Duration", "Time End", "Destination", "Port"];
+
+    // Handle form submission
+    const handleSearch = () => {
+        const data = {
+            from: fromLocation,
+            to: toLocation,
+            departure: departureDate,
+            arrival: arrivalDate
+        };
+
+        setExtractedData(data);
+        console.log("Extracted Data:", data);
+        // Add your API call or data processing logic here
+    };
 
     return (
         <div className="flex justify-center h-screen">
@@ -21,12 +44,40 @@ export default function Flight() {
                 <div className="mb-6">
                     <div className="flex space-x-4 mb-4">
                         <div className="flex flex-col w-1/2">
+                            <label htmlFor="from-departure" className="text-white text-2xl font-bold italic mb-2">
+                                From:
+                            </label>
+                            <input
+                                id="from-departure"
+                                type="text"
+                                value={fromLocation}
+                                onChange={(e) => setFromLocation(e.target.value)}
+                                className="w-full px-4 py-2 text-black rounded-lg focus:outline-none bg-white/50 border-2 border-black focus:ring-2 focus:ring-blue-500"
+                                placeholder="Cam Ranh (CXR)"
+                            />
+                        </div>
+                        <div className="flex flex-col w-1/2">
+                            <label htmlFor="to-arrival" className="text-white text-2xl font-bold italic mb-2">
+                                To:
+                            </label>
+                            <input
+                                id="to-arrival"
+                                type="text"
+                                value={toLocation}
+                                onChange={(e) => setToLocation(e.target.value)}
+                                className="w-full px-4 py-2 text-black rounded-lg focus:outline-none bg-white/50 border-2 border-black focus:ring-2 focus:ring-blue-500"
+                                placeholder="Dubai (DXB)"
+                            />
+                        </div>
+                        <div className="flex flex-col w-1/2">
                             <label htmlFor="date-departure" className="text-white text-2xl font-bold italic mb-2">
                                 Date of Departure:
                             </label>
                             <input
                                 id="date-departure"
                                 type="date"
+                                value={departureDate}
+                                onChange={(e) => setDepartureDate(e.target.value)}
                                 className="w-full px-4 py-2 text-black rounded-lg focus:outline-none bg-white/50 border-2 border-black focus:ring-2 focus:ring-blue-500"
                                 placeholder="10/10/2024"
                             />
@@ -38,13 +89,18 @@ export default function Flight() {
                             <input
                                 id="date-arrival"
                                 type="date"
+                                value={arrivalDate}
+                                onChange={(e) => setArrivalDate(e.target.value)}
                                 className="w-full px-4 py-2 text-black rounded-lg focus:outline-none bg-white/50 border-2 border-black focus:ring-2 focus:ring-blue-500"
                                 placeholder="10/10/2024"
                             />
                         </div>
                     </div>
                     <div className="flex justify-end">
-                        <Button className="w-32 bg-black text-white font-bold py-3 px-8 rounded-lg shadow-md hover:bg-gray-800 focus:outline-none transform hover:scale-105 transition-transform duration-200">
+                        <Button 
+                            onClick={handleSearch}
+                            className="w-32 bg-black text-white font-bold text-xl py-3 px-8 rounded-lg shadow-md hover:bg-gray-800 focus:outline-none transform hover:scale-105 transition-transform duration-200">
+                            
                             View
                         </Button>
                     </div>

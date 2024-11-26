@@ -14,10 +14,10 @@ public class Booking {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "BookingId", nullable = false)
+    @Column(name = "booking_id", nullable = false)
     private Integer bookingId;
 
-    @Column(name = "Booking_date", nullable = false)
+    @Column(name = "booking_date", nullable = false)
     private Date bookingDate; // DATETIME
 
     @Column(name = "Payment_status", nullable = false)

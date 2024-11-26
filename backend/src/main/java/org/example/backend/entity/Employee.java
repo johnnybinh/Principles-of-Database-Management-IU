@@ -12,36 +12,36 @@ public class Employee {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "EmployeeID", nullable = false)
+    @Column(name = "employeeid", nullable = false)
     private Long employeeID;
 
-    @Column(name = "First_Name", nullable = false)
+    @Column(name = "first_name", nullable = false)
     private String firstName;
 
-    @Column(name = "Last_Name", nullable = false)
+    @Column(name = "last_name", nullable = false)
     private String lastName;
 
-    @Column(name = "Gender", nullable = false)
+    @Column(name = "gender", nullable = false)
     private char gender;
 
-    @Column(name = "Date_of_Birth", nullable = false)
+    @Column(name = "date_of_birth", nullable = false)
     private String dateOfBirth;
     // Check if dateOfBirth is in the past
     // Check if dateOfBirth is in the format dd-mm-yyyy
 
-    @Column(name = "Age", nullable = false)
+    @Column(name = "age", nullable = false)
     private int age; // Check if age >= 18 and <= 100
 
-    @Column(name = "Role", nullable = false)
+    @Column(name = "role", nullable = false)
     private String role;
 
-    @Column(name = "Salary", nullable = false)
+    @Column(name = "salary", nullable = false)
     private double salary; // Check if salary >= 0
 
-    @Column(name = "Address", nullable = false)
+    @Column(name = "address", nullable = false)
     private String address;
 
-    @Column(name = "Phone_Number", nullable = false)
+    @Column(name = "phone_number", nullable = false)
     private String phoneNumber; // Check if phoneNumber is in the format 0xxxxxxxxx
 
 }

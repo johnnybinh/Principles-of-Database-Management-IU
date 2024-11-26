@@ -12,21 +12,21 @@ public class AirportStaff {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "Airport_staff_ID", nullable = false)
+    @Column(name = "airport_staff_id", nullable = false)
     private Long airportStaffID;
 
     @ManyToOne
-    @JoinColumn(name = "AirportID", nullable = false)
+    @JoinColumn(name = "airportid", nullable = false)
     private Airport airportID;
 
     @ManyToOne
-    @JoinColumn(name = "EmployeeID", nullable = false)
+    @JoinColumn(name = "employeeid", nullable = false)
     private Employee employeeID;
 
-    @Column(name = "Role", nullable = false)
+    @Column(name = "role", nullable = false)
     private String role;
 
-    @Column(name = "Status", nullable = false)
+    @Column(name = "status", nullable = false)
     private String status;
 
 }

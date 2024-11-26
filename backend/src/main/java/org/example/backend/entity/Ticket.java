@@ -12,29 +12,29 @@ public class Ticket {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "TicketID", nullable = false)
+    @Column(name = "ticketid", nullable = false)
     private Integer ticketID;
 
     @ManyToOne
-    @JoinColumn(name = "PassengerID", nullable = false)
+    @JoinColumn(name = "passengerid", nullable = false)
     private Passenger passengerID;
 
     @ManyToOne
-    @JoinColumn(name = "Seat_number", nullable = false)
+    @JoinColumn(name = "seat_number", nullable = false)
     private Seat seatNumber;
 
     @ManyToOne
-    @JoinColumn(name = "BookingID", nullable = false)
+    @JoinColumn(name = "bookingID", nullable = false)
     private Booking bookingID;
 
     @ManyToOne
-    @JoinColumn(name = "FlightID", nullable = false)
+    @JoinColumn(name = "flightID", nullable = false)
     private FlightBase flightID;
 
-    @Column(name = "Final_price", nullable = false)
+    @Column(name = "final_price", nullable = false)
     private Integer finalPrice;
 
-    @Column(name = "Baggage_weight", nullable = false)
+    @Column(name = "baggage_weight", nullable = false)
     private Integer baggageWeight;
 }
 

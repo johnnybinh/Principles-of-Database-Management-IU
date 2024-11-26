@@ -12,10 +12,10 @@ public class FlightStatus {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "StatusID", nullable = false)
+    @Column(name = "statusid", nullable = false)
     private Long statusID;
 
-    @Column(name = "Status", nullable = false)
+    @Column(name = "status", nullable = false)
     private String status;
 }
 

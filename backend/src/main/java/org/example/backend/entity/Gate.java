@@ -12,14 +12,14 @@ public class Gate {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "Gate_number", nullable = false)
+    @Column(name = "gate_number", nullable = false)
     private Long gateNumber;
 
     @ManyToOne
-    @JoinColumn(name = "AirportID", nullable = false)
+    @JoinColumn(name = "airportid", nullable = false)
     private Airport airportID;
 
-    @Column(name = "Status", nullable = false)
+    @Column(name = "status", nullable = false)
     private String status;
 
 }

@@ -11,10 +11,10 @@ import lombok.Setter;
 public class SeatClass {
 
     @Id
-    @Column(name = "Class_type", nullable = false)
+    @Column(name = "class_type", nullable = false)
     private String classType;
 
-    @Column(name = "Base_price", nullable = false)
+    @Column(name = "base_price", nullable = false)
     private float basePrice;
 }
 

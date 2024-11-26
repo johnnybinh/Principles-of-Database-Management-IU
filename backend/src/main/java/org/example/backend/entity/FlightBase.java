@@ -12,22 +12,22 @@ public class FlightBase {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "FlightID", nullable = false)
+    @Column(name = "flightid", nullable = false)
     private Long flightID;
 
     @ManyToOne
-    @JoinColumn(name = "Gate_number", nullable = false)
+    @JoinColumn(name = "gate_number", nullable = false)
     private Gate gateNumber;
 
     @ManyToOne
-    @JoinColumn(name = "AirlineID", nullable = false)
+    @JoinColumn(name = "airlineid", nullable = false)
     private Airline airlineID;
 
     @ManyToOne
-    @JoinColumn(name = "ScheduleID", nullable = false)
+    @JoinColumn(name = "scheduleid", nullable = false)
     private FlightSchedule scheduleID;
 
-    @Column(name = "Flight_duration", nullable = false)
+    @Column(name = "flight_duration", nullable = false)
     private Integer flightDuration;
 }
 

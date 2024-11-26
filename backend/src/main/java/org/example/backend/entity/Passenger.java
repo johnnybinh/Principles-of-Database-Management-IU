@@ -14,34 +14,34 @@ public class Passenger {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "PassengerID", nullable = false)
+    @Column(name = "passengerid", nullable = false)
     private Integer passengerID;
 
-    @Column(name = "First_name", nullable = false)
+    @Column(name = "first_name", nullable = false)
     private String firstName;
 
-    @Column(name = "Last_name", nullable = false)
+    @Column(name = "last_name", nullable = false)
     private String lastName;
 
-    @Column(name = "Age", nullable = false)
+    @Column(name = "age", nullable = false)
     private Integer age;
 
-    @Column(name = "Date_of_birth", nullable = false)
+    @Column(name = "date_of_birth", nullable = false)
     private Date dateOfBirth;
 
-    @Column(name = "Nationality", nullable = false)
+    @Column(name = "nationality", nullable = false)
     private String nationality;
 
-    @Column(name = "Passport_number", nullable = false, unique = true)
+    @Column(name = "passport_number", nullable = false, unique = true)
     private String passportNumber;
 
-    @Column(name = "Email", nullable = false)
+    @Column(name = "email", nullable = false)
     private String email;
 
-    @Column(name = "Phone_number", nullable = false)
+    @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
 
-    @Column(name = "Address", nullable = false)
+    @Column(name = "address", nullable = false)
     private String address;
 }
 

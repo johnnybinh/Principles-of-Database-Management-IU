@@ -12,11 +12,11 @@ public class Seat {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "Seat_number", nullable = false)
+    @Column(name = "seat_number", nullable = false)
     private Integer seatNumber;
 
     @ManyToOne
-    @JoinColumn(name = "Class_type", nullable = false)
+    @JoinColumn(name = "class_type", nullable = false)
     private SeatClass classType;
 }
 

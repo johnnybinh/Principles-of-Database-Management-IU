@@ -12,21 +12,21 @@ public class FlightCrew {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "Flight_Crew_ID", nullable = false)
+    @Column(name = "flight_crew_id", nullable = false)
     private Integer flightCrewID;
 
     @ManyToOne
-    @JoinColumn(name = "EmployeeID", nullable = false)
+    @JoinColumn(name = "employeeid", nullable = false)
     private Employee employeeID;
 
     @ManyToOne
-    @JoinColumn(name = "FlightID", nullable = false)
+    @JoinColumn(name = "flightid", nullable = false)
     private FlightBase flightID;
 
-    @Column(name = "Role", nullable = false)
+    @Column(name = "role", nullable = false)
     private String role;
 
-    @Column(name = "Status", nullable = false)
+    @Column(name = "status", nullable = false)
     private String status;
 }
 
