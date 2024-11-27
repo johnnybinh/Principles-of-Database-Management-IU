@@ -1,0 +1,9 @@
+INSERT INTO flight_status (statusid, status) VALUES
+('ST001', 'On Time'),
+('ST002', 'Delayed'),
+('ST003', 'Cancelled');
+
+INSERT INTO flight_schedule (scheduleid, statusid, departure_date, arrival_date, departure, arrival) VALUES
+('S001', 'ST001', '2024-12-01 10:00:00', '2024-12-01 12:00:00', 'Cam Ranh', 'Ho Chi Minh'),
+('S002', 'ST002', '2024-12-02 14:00:00', '2024-12-02 17:00:00', 'Cam Ranh', 'Ha Noi'),
+('S003', 'ST003', '2024-12-03 08:00:00', '2024-12-03 09:30:00', 'Cam Ranh', 'Da Nang');

@@ -15,7 +15,7 @@ public class Passenger {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "passengerid", nullable = false)
-    private Integer passengerID;
+    private String passengerID;
 
     @Column(name = "first_name", nullable = false)
     private String firstName;
@@ -44,16 +44,3 @@ public class Passenger {
     @Column(name = "address", nullable = false)
     private String address;
 }
-
-//CREATE TABLE Passenger (
-//  PassengerID INT PRIMARY KEY,
-//  First_name NVARCHAR(50),
-//  Last_name NVARCHAR(50),
-//  Age INT CHECK (Age >= 0 AND Age <= 120),
-//  Date_of_birth DATE,
-//  Nationality NVARCHAR(50),
-//  Passport_number NCHAR(9) UNIQUE,
-//  Email NVARCHAR(100),
-//  Phone_number NCHAR(12),
-//  Address NVARCHAR(200)
-//);

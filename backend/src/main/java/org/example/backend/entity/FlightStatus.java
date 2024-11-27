@@ -13,13 +13,8 @@ public class FlightStatus {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "statusid", nullable = false)
-    private Long statusID;
+    private String statusID;
 
     @Column(name = "status", nullable = false)
     private String status;
 }
-
-//CREATE TABLE Flight_Status (
-//  StatusID INT PRIMARY KEY,
-//  Status NVARCHAR(50)
-//);

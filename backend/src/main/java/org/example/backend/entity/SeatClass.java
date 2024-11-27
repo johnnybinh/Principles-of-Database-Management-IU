@@ -17,8 +17,3 @@ public class SeatClass {
     @Column(name = "base_price", nullable = false)
     private float basePrice;
 }
-
-// CREATE TABLE Seat_Class (
-//  Class_type NVARCHAR(50) PRIMARY KEY,
-//  Base_price DECIMAL(18, 2)
-//);

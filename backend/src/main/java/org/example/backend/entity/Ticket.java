@@ -13,7 +13,7 @@ public class Ticket {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ticketid", nullable = false)
-    private Integer ticketID;
+    private String ticketID;
 
     @ManyToOne
     @JoinColumn(name = "passengerid", nullable = false)

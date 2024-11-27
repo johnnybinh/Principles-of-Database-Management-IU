@@ -13,14 +13,9 @@ public class Airline {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "airlineid", nullable = false)
-    private Long airlineID;
+    private String airlineID;
 
     @Column(name = "airline_name", nullable = false)
     private String airlineName;
 
 }
-
-//CREATE TABLE Airline (
-//  AirlineID INT PRIMARY KEY,
-//  Airline_name NVARCHAR(100)
-//);

@@ -13,7 +13,7 @@ public class Gate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "gate_number", nullable = false)
-    private Long gateNumber;
+    private String gateNumber;
 
     @ManyToOne
     @JoinColumn(name = "airportid", nullable = false)
@@ -23,10 +23,3 @@ public class Gate {
     private String status;
 
 }
-
-//CREATE TABLE Gate (
-//                      Gate_number INT PRIMARY KEY,
-//                      AirportID INT,
-//                      Status NVARCHAR(50),
-//                      CONSTRAINT fk_airport_gate FOREIGN KEY (AirportID) REFERENCES Airport(AirportID) ON DELETE CASCADE
-//);

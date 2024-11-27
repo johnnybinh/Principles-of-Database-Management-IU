@@ -14,8 +14,8 @@ public class Booking {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "booking_id", nullable = false)
-    private Integer bookingId;
+    @Column(name = "bookingid", nullable = false)
+    private String bookingId;
 
     @Column(name = "booking_date", nullable = false)
     private Date bookingDate; // DATETIME
@@ -23,9 +23,3 @@ public class Booking {
     @Column(name = "Payment_status", nullable = false)
     private String paymentStatus;
 }
-
-//CREATE TABLE Booking (
-//  BookingId INT PRIMARY KEY,
-//  Booking_date DATETIME,
-//  Payment_status NVARCHAR(50)
-//);

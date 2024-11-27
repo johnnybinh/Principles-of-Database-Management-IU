@@ -13,9 +13,9 @@ public class Airport {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "airportid", nullable = false)
-    private Long airportID;
+    private String airportID;
 
-    @Column(name = "airport_Name", nullable = false)
+    @Column(name = "airport_name", nullable = false)
     private String airportName;
 
     @Column(name = "city", nullable = false)
@@ -25,13 +25,3 @@ public class Airport {
     private String country;
 
 }
-
-//CREATE TABLE Airport_staff (
-//  Airport_staff_ID INT PRIMARY KEY,
-//  AirportID INT,
-//  EmployeeID INT,
-//  Status NVARCHAR(50) NOT NULL,
-//  Role NVARCHAR(50) NOT NULL,
-//  CONSTRAINT fk_airport FOREIGN KEY (AirportID) REFERENCES Airport(AirportID) ON DELETE CASCADE,
-//  CONSTRAINT fk_employee FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID) ON DELETE CASCADE
-//);
