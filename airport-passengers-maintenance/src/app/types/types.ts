@@ -1,3 +1,4 @@
+// The data types used in the application
 export interface HeatMapData {
   entity: string;
   week: number;
@@ -16,4 +17,27 @@ export interface HeatMapProps {
   margin_right?: number; 
   margin_bottom?: number; 
   margin_left?: number; 
+}
+
+// Data types of the API response onflight
+export interface FlightSchedule {
+  scheduleID: number;
+  statusID: Status;
+  departureDate: string;
+  arrivalDate: string;
+  departure: string;
+  arrival: string;
+}
+
+export interface FlightScheduleSearch {
+  from: string;
+  to: string;
+  departure: string;
+  arrival: string;
+}
+
+// Define the Status interface
+export interface Status {
+  statusID: number;
+  status: string;
 }

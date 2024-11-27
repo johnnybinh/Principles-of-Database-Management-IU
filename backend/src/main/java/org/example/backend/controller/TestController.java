@@ -12,7 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/test")
-@CrossOrigin(origins = "http://localhost:3000") // Adjust based on your frontend's origin
+@CrossOrigin(origins = "http://localhost:3000") // Adjust based on your front-end's origin
 public class TestController {
 
     private final TestService testService;
@@ -26,4 +26,5 @@ public class TestController {
         List<Test> tests = testService.findAll();
         return ResponseEntity.ok(tests);
     }
+
 }
