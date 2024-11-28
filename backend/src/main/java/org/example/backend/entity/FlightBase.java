@@ -17,14 +17,14 @@ public class FlightBase {
 
     @ManyToOne
     @JoinColumn(name = "gate_number", nullable = false)
-    private Gate gateNumber;
+    private Gate gate;
 
     @ManyToOne
     @JoinColumn(name = "airlineid", nullable = false)
-    private Airline airlineID;
+    private Airline airline;
 
     @ManyToOne
     @JoinColumn(name = "scheduleid", nullable = false)
-    private FlightSchedule scheduleID;
+    private FlightSchedule flightSchedule;
 
 }

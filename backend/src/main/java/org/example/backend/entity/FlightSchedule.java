@@ -20,7 +20,7 @@ public class FlightSchedule {
 
     @ManyToOne
     @JoinColumn(name = "statusid", nullable = false)
-    private FlightStatus statusID;
+    private FlightStatus flightStatus;
 
     @Column(name = "departure_date", nullable = false)
     private LocalDateTime departureDate;

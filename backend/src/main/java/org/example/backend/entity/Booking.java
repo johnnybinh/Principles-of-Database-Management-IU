@@ -15,7 +15,7 @@ public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "bookingid", nullable = false)
-    private String bookingId;
+    private String bookingID;
 
     @Column(name = "booking_date", nullable = false)
     private Date bookingDate; // DATETIME

@@ -17,5 +17,5 @@ public class Seat {
 
     @ManyToOne
     @JoinColumn(name = "class_type", nullable = false)
-    private SeatClass classType;
+    private SeatClass seatClass;
 }

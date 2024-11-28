@@ -22,7 +22,7 @@ export interface HeatMapProps {
 // Data types of the API response onflight
 export interface FlightSchedule {
   scheduleID: string;
-  statusID: FlightStatus;
+  flightStatus: FlightStatus;
   departureDate: string;
   arrivalDate: string;
   departure: string;
@@ -56,7 +56,7 @@ export interface SeatClass {
 
 export interface Seat {
   seatNumber: string;
-  classType: SeatClass;
+  classClass: SeatClass;
 }
 
 export interface Booking {
@@ -116,7 +116,7 @@ export interface Ticket {
   booking: Booking;
   passenger: Passenger;
   seat: Seat;
-  flight: FlightBase;
+  flightBase: FlightBase;
   finalPrice: number;
   baggageWeight: number;
 }

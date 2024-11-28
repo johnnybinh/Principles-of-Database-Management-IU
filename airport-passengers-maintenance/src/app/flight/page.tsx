@@ -13,7 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 import { useEffect, useState } from "react";
-//import axios from 'axios';
+
 
 export default function Flight() {
     const table_header = ["Departure Date", "Arrival Date", "Departure", "Arrival", "Duration", "Status"];
@@ -168,8 +168,8 @@ export default function Flight() {
                                 <TableCell className="px-6 py-4 text-center">{item.departure}</TableCell>
                                 <TableCell className="px-6 py-4 text-center">{item.arrival}</TableCell>
                                 <TableCell className="px-6 py-4 text-center">{item.flightDuration} hrs</TableCell>
-                                <TableCell className={`px-6 py-4 text-center ${getStatusColor(item.statusID.status)}`}>
-                                    {item.statusID.status}
+                                <TableCell className={`px-6 py-4 text-center ${getStatusColor(item.flightStatus.status)}`}>
+                                    {item.flightStatus.status}
                                 </TableCell>
                             </TableRow>
                         ))}

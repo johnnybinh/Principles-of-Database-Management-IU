@@ -17,11 +17,11 @@ public class FlightCrew {
 
     @ManyToOne
     @JoinColumn(name = "employeeid", nullable = false)
-    private Employee employeeID;
+    private Employee employee;
 
     @ManyToOne
     @JoinColumn(name = "flightid", nullable = false)
-    private FlightBase flightID;
+    private FlightBase flightBase;
 
     @Column(name = "role", nullable = false)
     private String role;

@@ -17,11 +17,11 @@ public class AirportStaff {
 
     @ManyToOne
     @JoinColumn(name = "airportid", nullable = false)
-    private Airport airportID;
+    private Airport airport;
 
     @ManyToOne
     @JoinColumn(name = "employeeid", nullable = false)
-    private Employee employeeID;
+    private Employee employee;
 
     @Column(name = "role", nullable = false)
     private String role;

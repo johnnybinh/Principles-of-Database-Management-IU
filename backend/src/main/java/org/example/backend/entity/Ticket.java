@@ -17,19 +17,19 @@ public class Ticket {
 
     @ManyToOne
     @JoinColumn(name = "passengerid", nullable = false)
-    private Passenger passengerID;
+    private Passenger passenger;
 
     @ManyToOne
     @JoinColumn(name = "seat_number", nullable = false)
-    private Seat seatNumber;
+    private Seat seat;
 
     @ManyToOne
     @JoinColumn(name = "bookingID", nullable = false)
-    private Booking bookingID;
+    private Booking booking;
 
     @ManyToOne
     @JoinColumn(name = "flightID", nullable = false)
-    private FlightBase flightID;
+    private FlightBase flightBase;
 
     @Column(name = "final_price", nullable = false)
     private Integer finalPrice;

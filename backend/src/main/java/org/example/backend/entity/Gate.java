@@ -17,7 +17,7 @@ public class Gate {
 
     @ManyToOne
     @JoinColumn(name = "airportid", nullable = false)
-    private Airport airportID;
+    private Airport airport;
 
     @Column(name = "status", nullable = false)
     private String status;
