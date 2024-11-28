@@ -45,13 +45,7 @@ export default function View() {
                     </TableHeader>
                     <TableBody>
                         <TableRow className="bg-white/50 text-center text-base text-black uppercase tracking-wider hover:bg-white/70 transition-colors duration-200">
-                            <TableCell className="px-6 py-4">6:00 10/10/2024</TableCell>
-                            <TableCell className="px-6 py-4">Cam Ranh (CXR)</TableCell>
-                            <TableCell className="px-6 py-4">Port 3</TableCell>
-                            <TableCell className="px-6 py-4">6:00</TableCell>
-                            <TableCell className="px-6 py-4">12:00 10/10/2024</TableCell>
-                            <TableCell className="px-6 py-4">Dubai (DXB)</TableCell>
-                            <TableCell className="px-6 py-4">Port 4</TableCell>
+
                         </TableRow>
                     </TableBody>
                 </Table>

@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @Table(name = "flight_schedule")
@@ -20,10 +23,10 @@ public class FlightSchedule {
     private FlightStatus statusID;
 
     @Column(name = "departure_date", nullable = false)
-    private String departureDate;
+    private LocalDateTime departureDate;
 
     @Column(name = "arrival_date", nullable = false)
-    private String arrivalDate;
+    private LocalDateTime arrivalDate;
 
     @Column(name = "departure", nullable = false)
     private String departure;
@@ -31,6 +34,17 @@ public class FlightSchedule {
     @Column(name = "arrival", nullable = false)
     private String arrival;
 
+    @Transient
     @Column(name = "flight_duration", nullable = false)
     private Float flightDuration;
+
+    @PostLoad
+    @PostPersist
+    @PostUpdate
+    private void calculateFlightDuration() {
+        if (departureDate != null && arrivalDate != null) {
+            this.flightDuration = (float) Duration.between(departureDate, arrivalDate).toHours();
+        }
+    }
+
 }

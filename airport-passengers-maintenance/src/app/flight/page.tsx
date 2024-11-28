@@ -1,6 +1,6 @@
 "use client";
 
-import { Status, FlightSchedule } from '../types/types';
+import { FlightSchedule } from '../types/types';
 
 import {
     Table,
@@ -16,7 +16,7 @@ import { useEffect, useState } from "react";
 //import axios from 'axios';
 
 export default function Flight() {
-    const table_header = ["Departure Date", "Arrival Date", "Departure", "Arrival"];
+    const table_header = ["Departure Date", "Arrival Date", "Departure", "Arrival", "Duration", "Status"];
 
     const [flightSchedule, setFlightSchedule] = useState<FlightSchedule[]>([]);
     const [error, setError] = useState<string | null>(null);
@@ -27,9 +27,8 @@ export default function Flight() {
     const [arrival, setArrival] = useState<string>('');
   
     const handleClick = () => {
-        const fetchTests = async () => {
+        const fetchData = async () => {
             try {
-                // Build query parameters
                 const params = new URLSearchParams({
                     ...(departure && { departure }),
                     ...(arrival && { arrival }),
@@ -55,8 +54,32 @@ export default function Flight() {
             }
         };
         
-        fetchTests();
+        fetchData();
     }
+
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString);
+        return date.toLocaleString('en-GB', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
+
+    const getStatusColor = (status: string) => {
+        switch (status.toLowerCase()) {
+          case 'on time':
+            return 'text-green-500';
+          case 'cancelled':
+            return 'text-red-600';
+          case 'delayed':
+            return 'text-amber-400';
+          default:
+            return 'text-black';
+        }
+    };
 
     return (
         <div className="flex justify-center h-screen">
@@ -72,7 +95,7 @@ export default function Flight() {
                                 type="text"
                                 onChange={(e) => setDeparture(e.target.value)}
                                 value={departure}
-                                className="w-full px-4 py-2 text-black rounded-lg focus:outline-none bg-white/50 border-2 border-black focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-4 py-2 text-black rounded-lg focus:outline-none bg-white/50 border-2 border-black focus:ring-2 focus:ring-blue-500 placeholder:text-black"
                                 placeholder="Cam Ranh (CXR)"
                             />
                         </div>
@@ -85,7 +108,7 @@ export default function Flight() {
                                 type="text"
                                 onChange={(e) => setArrival(e.target.value)}
                                 value={arrival}
-                                className="w-full px-4 py-2 text-black rounded-lg focus:outline-none bg-white/50 border-2 border-black focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-4 py-2 text-black rounded-lg focus:outline-none bg-white/50 border-2 border-black focus:ring-2 focus:ring-blue-500 placeholder:text-black"
                                 placeholder="Dubai (DXB)"
                             />
                         </div>
@@ -140,10 +163,14 @@ export default function Flight() {
                     <TableBody>
                         {flightSchedule.map((item, index) => (
                             <TableRow key={index} className="bg-white/50 text-center text-base text-black uppercase tracking-wider hover:bg-white/70 transition-colors duration-200">
-                                <TableCell className="px-6 py-4 text-center">{item.departureDate}</TableCell>
-                                <TableCell className="px-6 py-4 text-center">{item.arrivalDate}</TableCell>
+                                <TableCell className="px-6 py-4 text-center">{formatDate(item.departureDate)}</TableCell>
+                                <TableCell className="px-6 py-4 text-center">{formatDate(item.arrivalDate)}</TableCell>
                                 <TableCell className="px-6 py-4 text-center">{item.departure}</TableCell>
                                 <TableCell className="px-6 py-4 text-center">{item.arrival}</TableCell>
+                                <TableCell className="px-6 py-4 text-center">{item.flightDuration} hrs</TableCell>
+                                <TableCell className={`px-6 py-4 text-center ${getStatusColor(item.statusID.status)}`}>
+                                    {item.statusID.status}
+                                </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
