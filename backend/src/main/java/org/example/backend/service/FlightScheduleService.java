@@ -18,10 +18,6 @@ public class FlightScheduleService {
         this.flightScheduleRepository = flightScheduleRepository;
     }
 
-    public List<FlightSchedule> getAllSchedules(String departure, String arrival, String departureDate, String arrivalDate) {
-        return flightScheduleRepository.findAll();
-    }
-
     // In FlightScheduleService.java, update the getAllSchedules method:
     public List<FlightSchedule> getAllSchedulesByFilter(String departure, String arrival, String departureDate, String arrivalDate) {
         if (departure == null && arrival == null && departureDate == null && arrivalDate == null) {
@@ -29,15 +25,20 @@ public class FlightScheduleService {
         }
 
         LocalDate parsedDepartureDate = null;
+        LocalDate parsedArrivalDate = null;
+
         try {
             if (departureDate != null && !departureDate.isEmpty()) {
                 parsedDepartureDate = LocalDate.parse(departureDate);
+            }
+            if (arrivalDate != null && !arrivalDate.isEmpty()) {
+                parsedArrivalDate = LocalDate.parse(arrivalDate);
             }
         } catch (DateTimeParseException e) {
             throw new IllegalArgumentException("Invalid date format. Use YYYY-MM-DD", e);
         }
 
-        return flightScheduleRepository.findByFilters(departure, arrival, parsedDepartureDate);
+        return flightScheduleRepository.findByFilters(departure, arrival, parsedDepartureDate, parsedArrivalDate);
     }
 }
 

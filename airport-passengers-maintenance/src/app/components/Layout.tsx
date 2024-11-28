@@ -22,6 +22,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                     <li style={styles.li}><Link href="/data" style={styles.link}>Data</Link></li>
                     <li style={styles.li}><Link href="/view" style={styles.link}>View</Link></li>
                     <li style={styles.li}><Link href="/flight" style={styles.link}>Flight</Link></li>
+                    <li style={styles.li}><Link href="/employee" style={styles.link}></Link></li>
                 </ul>
                 <Link href="/flight" passHref>
                     <button style={styles.flightButton}>Flight Now</button>

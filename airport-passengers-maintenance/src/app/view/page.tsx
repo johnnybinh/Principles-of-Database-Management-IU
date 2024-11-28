@@ -56,6 +56,18 @@ export default function View() {
     if (!dateStr) return '-';
     return new Date(dateStr).toLocaleDateString();
   };
+
+  const formatDateTime = (dateStr: string) => {
+    if (!dateStr) return '-';
+    const date = new Date(dateStr);
+    return date.toLocaleString('en-GB', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
   
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -127,10 +139,10 @@ export default function View() {
             {tickets.map((ticket, index) => (
                 <TableRow key={index} className="bg-white/50 text-center text-base text-black uppercase tracking-wider hover:bg-white/70 transition-colors duration-200">
                   <TableCell className="px-6 py-4 text-center text-lg">
-                    {formatDate(ticket.flightBase.flightSchedule.departureDate)}
+                    {formatDateTime(ticket.flightBase.flightSchedule.departureDate)}
                   </TableCell>
                   <TableCell className="px-6 py-4 text-center text-lg">
-                    {formatDate(ticket.flightBase.flightSchedule.departureDate)}
+                    {formatDateTime(ticket.flightBase.flightSchedule.arrivalDate)}
                   </TableCell>
                   <TableCell className="px-6 py-4 text-center text-lg">
                     {ticket.flightBase.flightSchedule.departure}
