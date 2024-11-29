@@ -12,36 +12,41 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:3000")
 public class TicketController {
 
-        private final TicketService ticketService;
+    private final TicketService ticketService;
 
-        public TicketController(TicketService ticketService) {
-            this.ticketService = ticketService;
+    public TicketController(TicketService ticketService) {
+        this.ticketService = ticketService;
+    }
+
+    @GetMapping("/api/tickets")
+    public ResponseEntity<?> getAllTickets() {
+        return ResponseEntity.ok(ticketService.getAllTickets());
+    }
+
+    @GetMapping("/api/tickets/{id}")
+    public ResponseEntity<?> getTicketById(@PathVariable Long id) {
+        Ticket ticket = ticketService.getTicketById(id);
+        if (ticket == null) {
+            return ResponseEntity.notFound().build();
         }
+        return ResponseEntity.ok(ticket);
+    }
 
-        @GetMapping("/api/tickets")
-        public ResponseEntity<?> getAllTickets() {
-            return ResponseEntity.ok(ticketService.getAllTickets());
-        }
+    @PostMapping("/api/tickets")
+    public ResponseEntity<?> saveTicket(@RequestBody Ticket ticket) {
+        return ResponseEntity.ok(ticketService.saveTicket(ticket));
+    }
 
-        @GetMapping("/api/tickets/{id}")
-        public ResponseEntity<?> getTicketById(@PathVariable Long id) {
-            Ticket ticket = ticketService.getTicketById(id);
-            if (ticket == null) {
-                return ResponseEntity.notFound().build();
-            }
-            return ResponseEntity.ok(ticket);
-        }
-
-        @PostMapping("/api/tickets")
-        public ResponseEntity<?> saveTicket(@RequestBody Ticket ticket) {
-            return ResponseEntity.ok(ticketService.saveTicket(ticket));
-        }
-
-        @DeleteMapping("/api/tickets/{id}")
-        public ResponseEntity<?> deleteTicket(@PathVariable Long id) {
-            ticketService.deleteTicket(id);
+    @DeleteMapping("/api/tickets/{ticketID}")
+    public ResponseEntity<?> deleteTicket(@PathVariable String ticketID) {
+        try {
+            ticketService.deleteByTicketID(ticketID);
             return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to delete ticket: " + e.getMessage());
         }
+    }
 
     @GetMapping("/api/tickets/email/{email}")
     public ResponseEntity<?> getTicketsByEmail(@PathVariable String email) {

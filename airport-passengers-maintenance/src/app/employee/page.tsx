@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { useRouter } from 'next/navigation';
 
-export default function Login() {
+export default function EmployeeLogin() {
   const [employeeID, setEmployeeID] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -22,7 +22,7 @@ export default function Login() {
       const response = await fetch(`http://localhost:8080/api/employee/${employeeID}`);
       
       if (response.ok) {
-        router.push('/dashboard'); // Redirect to dashboard after successful login
+        router.push('/employee/dashboard'); // Redirect to dashboard after successful login
       } else {
         setError('Invalid Employee ID');
       }

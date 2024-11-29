@@ -82,9 +82,26 @@ export default function View() {
     }
   };
 
-  const handleCancel = (ticketID: string) => {
-    // Implement your cancel logic here
-    console.log(`Cancel ticket ID: ${ticketID}`);
+  const handleCancel = async (ticketID: string) => {
+    if (!confirm('Are you sure you want to cancel this ticket?')) {
+      return;
+    }
+  
+    try {
+      const response = await fetch(`http://localhost:8080/api/tickets/${ticketID}`, {
+        method: 'DELETE',
+      });
+  
+      if (response.ok) {
+        // Remove ticket from state
+        setTickets(tickets.filter(ticket => ticket.ticketID !== ticketID));
+      } else {
+        throw new Error('Failed to cancel ticket');
+      }
+    } catch (err) {
+      console.error('Error cancelling ticket:', err);
+      alert('Failed to cancel ticket');
+    }
   };
 
   const handleDetail = (ticket: Ticket) => {
@@ -159,7 +176,7 @@ export default function View() {
                   <TableCell>
                     <div className="flex space-x-2 justify-center">
                       <Button
-                        className="bg-black text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-gray-800 focus:outline-none transform hover:scale-105 transition-transform duration-200"
+                        className="bg-black text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-red-800 focus:outline-none transform hover:scale-105 transition-transform duration-200"
                         onClick={() => handleCancel(ticket.ticketID)} // Add your cancel handler
                       >
                         Cancel

@@ -1,26 +1,29 @@
 package org.example.backend.controller;
 
+import org.example.backend.service.EmployeeService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@CrossOrigin(origins = "http://localhost:3000")
 public class EmployeeController {
-    public EmployeeController() {
+    private final EmployeeService employeeService;
+
+    public EmployeeController(EmployeeService employeeService) {
+        this.employeeService = employeeService;
     }
 
-    public void addEmployee() {
-        throw new UnsupportedOperationException("Not supported yet.");
+    @GetMapping("/api/employee/{employeeID}")
+    public ResponseEntity<?> getAllEmployeesByID(@PathVariable String employeeID) {
+        return ResponseEntity.ok(employeeService.getAllEmployeesByID(employeeID));
     }
 
-    public void updateEmployee() {
-        throw new UnsupportedOperationException("Not supported yet.");
+    @GetMapping("/api/employeeID/{employeeID}")
+    public ResponseEntity<?> getEmployeeID(@PathVariable String employeeID) {
+        return ResponseEntity.ok(employeeService.getEmployeeID(employeeID));
     }
 
-    public void deleteEmployee() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public void getEmployee() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public void getAllEmployees() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
 }
