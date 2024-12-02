@@ -22,4 +22,12 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     @Query("DELETE FROM Ticket t WHERE t.ticketID = :ticketID")
     void deleteByTicketID(@Param("ticketID") String ticketID);
 
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Passenger p WHERE p.passengerID IN (SELECT t.passenger.passengerID FROM Ticket t WHERE t.ticketID = :ticketID)")
+    void deletePassengerByTicketID(@Param("ticketID") String ticketID);
+
+    List<Ticket> findByPassengerEmail(String email);
+    List<Ticket> findByFlightBase_FlightID(String flightId);
+
 }

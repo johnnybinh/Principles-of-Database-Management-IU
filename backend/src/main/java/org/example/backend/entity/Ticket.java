@@ -32,10 +32,10 @@ public class Ticket {
     private FlightBase flightBase;
 
     @Column(name = "final_price", nullable = false)
-    private Integer finalPrice;
+    private double finalPrice;
 
     @Column(name = "baggage_weight", nullable = false)
-    private Integer baggageWeight;
+    private double baggageWeight;
 }
 
 //CREATE TABLE Ticket (

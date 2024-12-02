@@ -37,5 +37,12 @@ public class TicketService {
         ticketRepository.deleteByTicketID(ticketID);
     }
 
+    @Transactional
+    public void deleteTicketAndPassenger(String ticketID) {
+        ticketRepository.deletePassengerByTicketID(ticketID);
+        ticketRepository.deleteByTicketID(ticketID);
+    }
+
+
 }
 

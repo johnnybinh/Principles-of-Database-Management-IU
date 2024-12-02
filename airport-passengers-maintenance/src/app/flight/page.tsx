@@ -14,9 +14,15 @@ import { Button } from "@/components/ui/button";
 
 import { useEffect, useState } from "react";
 
+// Move constant outside component
+const SEAT_CLASS_PRICES = {
+    'Economy': 1000000,
+    'Business': 2000000,
+    'First Class': 3000000
+} as const;
 
 export default function Flight() {
-    const table_header = ["Departure Date", "Arrival Date", "Departure", "Arrival", "Duration", "Status"];
+    const table_header = ["Departure Date", "Arrival Date", "Departure", "Arrival", "Duration", "Status", "Booking"];
 
     const [flightSchedule, setFlightSchedule] = useState<FlightSchedule[]>([]);
     const [error, setError] = useState<string | null>(null);
@@ -25,7 +31,36 @@ export default function Flight() {
     const [arrivalDate, setArrivalDate] = useState<string>('');
     const [departure, setDeparture] = useState<string>('');
     const [arrival, setArrival] = useState<string>('');
-  
+
+    const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+    const [selectedFlight, setSelectedFlight] = useState<FlightSchedule | null>(null);
+    const [bookingForm, setBookingForm] = useState({
+        firstName: '',
+        lastName: '',
+        age: '',  
+        email: '',
+        phone: '',
+        passport: '',
+        dateOfBirth: '',
+        nationality: '',
+        address: '',
+        baggage_weight: 0
+    });
+
+    const [seatClass, setSeatClass] = useState<keyof typeof SEAT_CLASS_PRICES>('Economy');
+    const [finalPrice, setFinalPrice] = useState<number>(SEAT_CLASS_PRICES.Economy);
+
+    useEffect(() => {
+        const newPrice = calculateRandomPrice();
+        setFinalPrice(newPrice);
+    }, [seatClass]);
+
+    const calculateRandomPrice = () => {
+        const baseFare = SEAT_CLASS_PRICES[seatClass];
+        const multiplier = 1 + Math.random() * 0.3; // 0-30% variation
+        return Math.round(baseFare * multiplier);
+    };
+
     const handleClick = () => {
         const fetchData = async () => {
             try {
@@ -57,6 +92,67 @@ export default function Flight() {
         fetchData();
     }
 
+    const handleBook = (flight: FlightSchedule) => {
+        setSelectedFlight(flight);
+        setFinalPrice(calculateRandomPrice());
+        setIsBookingModalOpen(true);
+    };
+
+    const handleBookingSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        
+        try {
+          const bookingData = {
+            passenger: {
+                firstName: bookingForm.firstName,
+                lastName: bookingForm.lastName,
+                age: parseInt(bookingForm.age),  
+                email: bookingForm.email,
+                phone: bookingForm.phone,
+                passport: bookingForm.passport,
+                dateOfBirth: bookingForm.dateOfBirth,
+                nationality: bookingForm.nationality,
+                address: bookingForm.address
+            },
+            flightScheduleID: selectedFlight?.scheduleID,
+            seatClass: seatClass,
+            baggage_weight: bookingForm.baggage_weight,
+            finalPrice: finalPrice
+          };
+      
+          const response = await fetch('http://localhost:8080/api/tickets/book', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(bookingData)
+          });
+      
+          if (response.ok) {
+            alert('Booking successful!');
+            setIsBookingModalOpen(false);
+            // Reset form
+            setBookingForm({
+              firstName: '',
+              lastName: '',
+              age: '',
+              email: '',
+              phone: '',
+              passport: '',
+              dateOfBirth: '',
+              nationality: '',
+              address: '',
+              baggage_weight: 0
+            });
+          } else {
+            throw new Error('Booking failed');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          alert('Failed to create booking');
+        }
+    };
+
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
         return date.toLocaleString('en-GB', {
@@ -79,6 +175,11 @@ export default function Flight() {
           default:
             return 'text-black';
         }
+    };
+
+    const handleSeatClassChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const newSeatClass = e.target.value as keyof typeof SEAT_CLASS_PRICES;
+        setSeatClass(newSeatClass);
     };
 
     return (
@@ -171,11 +272,206 @@ export default function Flight() {
                                 <TableCell className={`px-6 py-4 text-center ${getStatusColor(item.flightStatus.status)}`}>
                                     {item.flightStatus.status}
                                 </TableCell>
+                                <TableCell className="px-6 py-4 text-center">
+                                    {item.flightStatus.status.toLowerCase() !== 'cancelled' && (
+                                        <Button 
+                                            onClick={() => handleBook(item)}
+                                            className="bg-black text-white font-bold text-lg py-2 px-4 rounded-lg shadow-md hover:bg-gray-800 focus:outline-none transform hover:scale-105 transition-transform duration-200">
+                                            Book
+                                        </Button>
+                                    )}
+                                </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
                 </Table>
             </div>
+            {isBookingModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-gray-800 rounded-xl p-8 w-full max-w-2xl">
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-2xl font-bold">Booking Details</h2>
+                            <button 
+                                onClick={() => setIsBookingModalOpen(false)}
+                                className="text-gray-500 hover:text-gray-700"
+                            >
+                                ×
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleBookingSubmit} className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-white">First Name</label>
+                                    <input
+                                        type="text"
+                                        required
+                                        value={bookingForm.firstName}
+                                        placeholder="Enter your first name"
+                                        onChange={(e) => setBookingForm({...bookingForm, firstName: e.target.value})}
+                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-zinc-700 placeholder-gray-400 pl-2"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium ttext-white">Last Name</label>
+                                    <input
+                                        type="text"
+                                        required
+                                        value={bookingForm.lastName}
+                                        placeholder="Enter your last name"
+                                        onChange={(e) => setBookingForm({...bookingForm, lastName: e.target.value})}
+                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-zinc-700 placeholder-gray-400 pl-2"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-white">Age</label>
+                                <input
+                                    type="number"
+                                    required
+                                    min="0"
+                                    max="120"
+                                    value={bookingForm.age}
+                                    placeholder="Enter your age"
+                                    onChange={(e) => setBookingForm({...bookingForm, age: e.target.value})}
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-zinc-700 placeholder-gray-400 pl-2"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-white">Email</label>
+                                <input
+                                    type="email"
+                                    required
+                                    value={bookingForm.email}
+                                    placeholder="example@email.com"
+                                    pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                                    title="Please enter a valid email address"
+                                    onChange={(e) => setBookingForm({...bookingForm, email: e.target.value})}
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-zinc-700 placeholder-gray-400 pl-2"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-white">Phone Number</label>
+                                <input
+                                    type="tel"
+                                    required
+                                    value={bookingForm.phone}
+                                    placeholder="Enter 10-digit phone number"
+                                    pattern="[0-9]{10}"
+                                    title="Please enter a valid 10-digit phone number"
+                                    onChange={(e) => setBookingForm({...bookingForm, phone: e.target.value})}
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-zinc-700 placeholder-gray-400 pl-2"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-white">Passport Number</label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={bookingForm.passport}
+                                    placeholder="Enter your passport number"
+                                    onChange={(e) => setBookingForm({...bookingForm, passport: e.target.value})}
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-zinc-700 placeholder-gray-400 pl-2"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-white">Date of Birth</label>
+                                <input
+                                    type="date"
+                                    required
+                                    value={bookingForm.dateOfBirth}
+                                    onChange={(e) => setBookingForm({...bookingForm, dateOfBirth: e.target.value})}
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-zinc-700 placeholder-gray-400 pl-2"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-white">Nationality</label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={bookingForm.nationality}
+                                    placeholder='Enter your Nationality'
+                                    onChange={(e) => setBookingForm({...bookingForm, nationality: e.target.value})}
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-zinc-700 placeholder-gray-400 pl-2"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-white">Baggage Weight</label>
+                                <input
+                                    type="number"
+                                    required
+                                    value={bookingForm.baggage_weight}
+                                    placeholder='Enter your baggage weight'
+                                    onChange={(e) => setBookingForm({...bookingForm, baggage_weight: parseInt(e.target.value)})}
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-zinc-700 placeholder-gray-400 pl-2"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-white">Address</label>
+                                <textarea
+                                    required
+                                    value={bookingForm.address}
+                                    placeholder='Enter your address'
+                                    onChange={(e) => setBookingForm({...bookingForm, address: e.target.value})}
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-zinc-700 placeholder-gray-400 pl-2"
+                                    rows={3}
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-white">Seat Class</label>
+                                <select
+                                    required
+                                    value={seatClass}
+                                    onChange={handleSeatClassChange}
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-zinc-700 bg-white pl-2"
+                                >
+                                    <option value="Economy">Economy Class</option>
+                                    <option value="Business">Business Class</option>
+                                    <option value="First Class">First Class</option>
+                                </select>
+                                <p className="text-xs text-gray-400 mt-1">
+                                    Base prices: Economy ₫1M, Business ₫2M, First Class ₫3M
+                                </p>
+                            </div>
+
+                            <div className="mt-6 p-4 bg-zinc-900 rounded-lg">
+                                <label className="block text-sm font-medium text-white mb-2">Final Price</label>
+                                <div className="text-3xl font-bold text-green-500 text-center">
+                                    ${finalPrice.toLocaleString()}
+                                </div>
+                                <p className="text-xs text-gray-400 text-center mt-1">
+                                    *Price includes all taxes and fees
+                                </p>
+                            </div>
+
+                            <div className="flex justify-end space-x-3 mt-6">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsBookingModalOpen(false)}
+                                    className="px-4 py-2 text-sm font-bold text-white bg-zinc-900 rounded-md hover:bg-red-600"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+                                >
+                                    Confirm Booking
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

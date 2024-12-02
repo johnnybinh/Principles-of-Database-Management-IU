@@ -40,11 +40,10 @@ public class TicketController {
     @DeleteMapping("/api/tickets/{ticketID}")
     public ResponseEntity<?> deleteTicket(@PathVariable String ticketID) {
         try {
-            ticketService.deleteByTicketID(ticketID);
+            ticketService.deleteTicketAndPassenger(ticketID);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to delete ticket: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 

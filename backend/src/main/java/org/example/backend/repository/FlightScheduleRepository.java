@@ -23,4 +23,6 @@ public interface FlightScheduleRepository extends JpaRepository<FlightSchedule, 
             @Param("departureDate") LocalDate departureDate,
             @Param("arrivalDate") LocalDate arrivalDate
     );
+
+    List<FlightSchedule> findByScheduleID(String scheduleID);
 }
