@@ -16,15 +16,18 @@ public class FlightBase {
     private String flightID;
 
     @ManyToOne
-    @JoinColumn(name = "gate_number", nullable = false)
-    private Gate gate;
-
-    @ManyToOne
     @JoinColumn(name = "airlineid", nullable = false)
     private Airline airline;
 
     @ManyToOne
     @JoinColumn(name = "scheduleid", nullable = false)
     private FlightSchedule flightSchedule;
+
+    @ManyToOne
+    @JoinColumn(name = "airportid", nullable = false)
+    private Airport airport;
+
+    @Column(name = "gate_number", nullable = false)
+    private int gateNumber;
 
 }

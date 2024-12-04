@@ -223,7 +223,7 @@ export default function View() {
                 <div className="space-y-2">
                   <p className='text-black'><span className="font-medium">Flight ID:</span> {selectedTicket.flightBase.flightID}</p>
                   <p className='text-black'><span className="font-medium">Airline:</span> {selectedTicket.flightBase.airline.airlineName}</p>
-                  <p className='text-black'><span className="font-medium">Gate:</span> {selectedTicket.flightBase.gate.gateNumber}</p>
+                  <p className='text-black'><span className="font-medium">Gate:</span> {selectedTicket.flightBase.gateNumber}</p>
                 </div>
               </div>
 

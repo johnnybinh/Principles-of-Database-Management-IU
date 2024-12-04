@@ -98,17 +98,13 @@ export interface AirportStaff {
   role: string;
 }
 
-export interface Gate {
-  gateNumber: string;
-  airport: Airport;
-  status: string;
-}
 
 export interface FlightBase {
   flightID: string;
-  gate: Gate;
+  airport: Airport;
   airline: Airline;
   flightSchedule: FlightSchedule;
+  gateNumber: number;
 }
 
 export interface Ticket {

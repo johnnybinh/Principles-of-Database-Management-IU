@@ -63,13 +63,6 @@ CREATE TABLE airport_staff (
                                CONSTRAINT fk_employee FOREIGN KEY (employeeid) REFERENCES employee(employeeid) ON DELETE CASCADE
 );
 
-CREATE TABLE gate (
-                      gate_number VARCHAR(255) PRIMARY KEY NOT NULL,
-                      airportid VARCHAR(255) NOT NULL,
-                      status VARCHAR(50) NOT NULL,
-                      CONSTRAINT fk_airport_gate FOREIGN KEY (airportid) REFERENCES airport(airportid) ON DELETE CASCADE
-);
-
 CREATE TABLE flight_status (
                                statusid VARCHAR(255) PRIMARY KEY NOT NULL,
                                status VARCHAR(50) NOT NULL
@@ -88,10 +81,11 @@ CREATE TABLE flight_schedule (
 
 CREATE TABLE flight_base (
                              flightid VARCHAR(255) PRIMARY KEY NOT NULL,
-                             gate_number VARCHAR(255) NOT NULL,
+                             airportid VARCHAR(255) NOT NULL,
                              airlineid VARCHAR(255) NOT NULL,
                              scheduleid VARCHAR(255) NOT NULL ,
-                             CONSTRAINT fk_gate FOREIGN KEY (gate_number) REFERENCES gate(gate_number) ON DELETE CASCADE,
+                             gate_number INT NOT NULL,
+                             CONSTRAINT fk_airport_flight_base FOREIGN KEY (airportid) REFERENCES airport(airportid) ON DELETE CASCADE,
                              CONSTRAINT fk_airline FOREIGN KEY (airlineid) REFERENCES airline(airlineid) ON DELETE CASCADE,
                              CONSTRAINT fk_schedule FOREIGN KEY (scheduleid) REFERENCES flight_schedule(scheduleid) ON DELETE CASCADE
 );

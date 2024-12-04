@@ -49,15 +49,10 @@ INSERT INTO airport_staff (airport_staff_id, airportid, employeeid, status, role
 ('AS002', 'AP002', 'E002', 'Active', 'Customer Service'),
 ('AS003', 'AP003', 'E003', 'Inactive', 'Ground Crew');
 
-INSERT INTO gate (gate_number, airportid, status) VALUES
-('G001', 'AP001', 'Open'),
-('G002', 'AP002', 'Closed'),
-('G003', 'AP003', 'Under Maintenance');
-
-INSERT INTO flight_base (flightid, gate_number, airlineid, scheduleid) VALUES
-('F001', 'G001', 'A001', 'S001'),
-('F002', 'G002', 'A002', 'S002'),
-('F003', 'G003', 'A003', 'S003');
+INSERT INTO flight_base (flightid, airportid, airlineid, scheduleid, gate_number) VALUES
+('F001', 'AP001', 'A001', 'S001', 1),
+('F002', 'AP002', 'A002', 'S002', 2),
+('F003', 'AP003', 'A003', 'S003', 3);
 
 INSERT INTO ticket (ticketid, passengerid, seat_number, bookingid, flightid, final_price, baggage_weight) VALUES
 ('T001', 'P001', 'S001', 'B001', 'F001', 1200000, 20),
