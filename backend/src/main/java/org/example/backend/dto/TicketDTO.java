@@ -5,11 +5,12 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class BookingTicketDTO {
+public class TicketDTO {
 
     private PassengerDTO passenger;
+    private BookingDTO booking;
+    private SeatDTO seat;
     private String flightScheduleID;
-    private String seatClassType;
     private double finalPrice;
     private double baggageWeight;
 }

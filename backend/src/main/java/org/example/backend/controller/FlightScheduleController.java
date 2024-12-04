@@ -1,6 +1,5 @@
 package org.example.backend.controller;
 
-import org.example.backend.dto.FlightSearchDTO;
 import org.example.backend.entity.FlightSchedule;
 import org.example.backend.service.FlightScheduleService;
 
@@ -22,23 +21,8 @@ public class FlightScheduleController {
         this.flightScheduleService = flightScheduleService;
     }
 
-    // Fetch all flight schedules
-//    @GetMapping
-//    public ResponseEntity<List<FlightSchedule>> getAllSchedules(@RequestBody(required = false) FlightSearchDTO request) {
-//        if (request == null) {
-//            request = new FlightSearchDTO(); // Initialize with default values if request body is missing
-//        }
-//        List<FlightSchedule> schedules = flightScheduleService.getAllSchedules(
-//                request.getDeparture(),
-//                request.getArrival(),
-//                request.getDepartureDate(),
-//                request.getArrivalDate()
-//        );
-//        return ResponseEntity.ok(schedules);
-//    }
-
     // Fetch schedules based on input (filters)
-// In FlightScheduleController.java, update the getAllSchedules method:
+    // In FlightScheduleController.java, update the getAllSchedules method:
     @GetMapping
     public ResponseEntity<List<FlightSchedule>> getAllSchedulesByFilter(
             @RequestParam(required = false) String departure,

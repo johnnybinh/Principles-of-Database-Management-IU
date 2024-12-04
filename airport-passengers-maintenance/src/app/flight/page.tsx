@@ -21,6 +21,13 @@ const SEAT_CLASS_PRICES = {
     'First Class': 3000000
 } as const;
 
+// Add airline options constant
+const AIRLINES = [
+    'Vietnam Airlines',
+    'Bamboo Airways',
+    'VietJet Air'
+];
+
 export default function Flight() {
     const table_header = ["Departure Date", "Arrival Date", "Departure", "Arrival", "Duration", "Status", "Booking"];
 
@@ -44,7 +51,8 @@ export default function Flight() {
         dateOfBirth: '',
         nationality: '',
         address: '',
-        baggage_weight: 0
+        baggage_weight: 0,
+        airline: '' // Add this
     });
 
     const [seatClass, setSeatClass] = useState<keyof typeof SEAT_CLASS_PRICES>('Economy');
@@ -115,6 +123,7 @@ export default function Flight() {
                 address: bookingForm.address
             },
             flightScheduleID: selectedFlight?.scheduleID,
+            airline: bookingForm.airline, // Add this
             seatClass: seatClass,
             baggage_weight: bookingForm.baggage_weight,
             finalPrice: finalPrice
@@ -142,7 +151,8 @@ export default function Flight() {
               dateOfBirth: '',
               nationality: '',
               address: '',
-              baggage_weight: 0
+              baggage_weight: 0,
+              airline: '' // Add this
             });
           } else {
             throw new Error('Booking failed');
@@ -424,6 +434,23 @@ export default function Flight() {
                                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-zinc-700 placeholder-gray-400 pl-2"
                                     rows={3}
                                 />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-white">Airline</label>
+                                <select
+                                    required
+                                    value={bookingForm.airline}
+                                    onChange={(e) => setBookingForm({...bookingForm, airline: e.target.value})}
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-zinc-700 placeholder-gray-400 pl-2"
+                                >
+                                    <option value="">Select Airline</option>
+                                    {AIRLINES.map((airline) => (
+                                        <option key={airline} value={airline}>
+                                            {airline}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
 
                             <div>
