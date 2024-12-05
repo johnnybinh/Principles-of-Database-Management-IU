@@ -6,9 +6,10 @@ import lombok.Getter;
 @Getter
 @Setter
 public class SeatDTO {
-    private String class_type;
+    private SeatClassDTO seatClass;
 
-    public SeatDTO(String class_type) {
-        this.class_type = class_type;
+    public SeatDTO(SeatClassDTO seatClass) {
+        this.seatClass = seatClass;
     }
+
 }

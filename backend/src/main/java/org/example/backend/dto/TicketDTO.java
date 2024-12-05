@@ -22,5 +22,5 @@ public class TicketDTO {
         this.finalPrice = finalPrice;
         this.baggageWeight = baggageWeight;
     }
-    
+
 }

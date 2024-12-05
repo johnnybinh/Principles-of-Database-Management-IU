@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @Getter
 public class FlightScheduleDTO {
 
+    private String scheduleID;
     private FlightStatusDTO flightStatus;
     private LocalDateTime departureDate;
     private LocalDateTime arrivalDate;

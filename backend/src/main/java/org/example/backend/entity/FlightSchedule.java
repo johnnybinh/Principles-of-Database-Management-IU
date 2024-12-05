@@ -38,6 +38,10 @@ public class FlightSchedule {
     @Column(name = "flight_duration", nullable = false)
     private Float flightDuration;
 
+    public FlightSchedule(String scheduleID) {
+        this.scheduleID = scheduleID;
+    }
+
     @PostLoad
     @PostPersist
     @PostUpdate

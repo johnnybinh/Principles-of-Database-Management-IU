@@ -18,4 +18,8 @@ public class Airline {
     @Column(name = "airline_name", nullable = false)
     private String airlineName;
 
+    public Airline(String airlineName) {
+        this.airlineName = airlineName;
+    }
+
 }

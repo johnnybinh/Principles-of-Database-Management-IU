@@ -1,5 +1,6 @@
 package org.example.backend.controller;
 
+import org.example.backend.dto.TicketDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,6 +10,7 @@ import org.example.backend.service.TicketService;
 import java.util.List;
 
 @RestController
+@RequestMapping("/api/tickets")
 @CrossOrigin(origins = "http://localhost:3000")
 public class TicketController {
 
@@ -18,12 +20,12 @@ public class TicketController {
         this.ticketService = ticketService;
     }
 
-    @GetMapping("/api/tickets")
+    @GetMapping
     public ResponseEntity<?> getAllTickets() {
         return ResponseEntity.ok(ticketService.getAllTickets());
     }
 
-    @GetMapping("/api/tickets/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<?> getTicketById(@PathVariable Long id) {
         Ticket ticket = ticketService.getTicketById(id);
         if (ticket == null) {
@@ -32,12 +34,12 @@ public class TicketController {
         return ResponseEntity.ok(ticket);
     }
 
-    @PostMapping("/api/tickets")
-    public ResponseEntity<?> saveTicket(@RequestBody Ticket ticket) {
+    @PostMapping("/admin")
+    public ResponseEntity<Ticket> saveTicket(@RequestBody Ticket ticket) {
         return ResponseEntity.ok(ticketService.saveTicket(ticket));
     }
 
-    @DeleteMapping("/api/tickets/{ticketID}")
+    @DeleteMapping("/{ticketID}")
     public ResponseEntity<?> deleteTicket(@PathVariable String ticketID) {
         try {
             ticketService.deleteTicketAndPassenger(ticketID);
@@ -47,7 +49,7 @@ public class TicketController {
         }
     }
 
-    @GetMapping("/api/tickets/email/{email}")
+    @GetMapping("/email/{email}")
     public ResponseEntity<?> getTicketsByEmail(@PathVariable String email) {
         List<Ticket> tickets = ticketService.getTicketsByEmail(email);
         if (tickets.isEmpty()) {
@@ -55,6 +57,11 @@ public class TicketController {
                     .body("No tickets found for the provided email.");
         }
         return ResponseEntity.ok(tickets);
+    }
+
+    @PostMapping("/book")
+    public ResponseEntity<TicketDTO> createTicket(@RequestBody TicketDTO ticketDTO) {
+        return ResponseEntity.ok(ticketService.createTicket(ticketDTO));
     }
 
 }
