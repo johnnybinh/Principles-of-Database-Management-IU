@@ -12,10 +12,10 @@ public class Seat {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "seat_number", nullable = false)
+    @Column(name = "seat_number", nullable = false, length = 5)
     private String seatNumber;
 
-    @ManyToOne
-    @JoinColumn(name = "class_type", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "class_type", insertable = false, updatable = false)
     private SeatClass seatClass;
 }

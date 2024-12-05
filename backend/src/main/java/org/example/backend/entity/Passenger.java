@@ -13,8 +13,7 @@ import java.sql.Date;
 public class Passenger {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "passengerid", nullable = false)
+    @Column(name = "passengerid", nullable = false, length = 5)
     private String passengerID;
 
     @Column(name = "first_name", nullable = false)

@@ -28,6 +28,13 @@ const AIRLINES = [
     'VietJet Air'
 ];
 
+// Update email validation regex
+const isValidEmail = (email: string): boolean => {
+    // Simplified but robust email regex
+    const emailRegex = /^[\w.-]+@[a-zA-Z\d.-]+\.[a-zA-Z]{2,}$/;
+    return emailRegex.test(email);
+};
+
 export default function Flight() {
     const table_header = ["Departure Date", "Arrival Date", "Departure", "Arrival", "Duration", "Status", "Booking"];
 
@@ -51,12 +58,15 @@ export default function Flight() {
         dateOfBirth: '',
         nationality: '',
         address: '',
-        baggage_weight: 0,
-        airline: '' // Add this
+        baggageWeight: 0,
+        airline: '' 
     });
 
     const [seatClass, setSeatClass] = useState<keyof typeof SEAT_CLASS_PRICES>('Economy');
     const [finalPrice, setFinalPrice] = useState<number>(SEAT_CLASS_PRICES.Economy);
+
+    // Add loading state
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         const newPrice = calculateRandomPrice();
@@ -106,61 +116,101 @@ export default function Flight() {
         setIsBookingModalOpen(true);
     };
 
+    // Update form validation
+    const validateForm = () => {
+        if (!bookingForm.email) {
+            alert('Email is required');
+            return false;
+        }
+        
+        if (!isValidEmail(bookingForm.email)) {
+            alert('Please enter a valid email address');
+            return false;
+        }
+        
+        return true;
+    };
+
     const handleBookingSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
+        if (!validateForm()) {
+            return;
+        }
+        
+        setIsLoading(true);
+        
         try {
-          const bookingData = {
-            passenger: {
-                firstName: bookingForm.firstName,
-                lastName: bookingForm.lastName,
-                age: parseInt(bookingForm.age),  
-                email: bookingForm.email,
-                phone: bookingForm.phone,
-                passport: bookingForm.passport,
-                dateOfBirth: bookingForm.dateOfBirth,
-                nationality: bookingForm.nationality,
-                address: bookingForm.address
-            },
-            flightScheduleID: selectedFlight?.scheduleID,
-            airline: bookingForm.airline, // Add this
-            seatClass: seatClass,
-            baggage_weight: bookingForm.baggage_weight,
-            finalPrice: finalPrice
-          };
-      
-          const response = await fetch('http://localhost:8080/api/tickets/book', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(bookingData)
-          });
-      
-          if (response.ok) {
+            const bookingData = {
+                passenger: {
+                    firstName: bookingForm.firstName,
+                    lastName: bookingForm.lastName,
+                    age: parseInt(bookingForm.age),  
+                    email: bookingForm.email,
+                    phoneNumber: bookingForm.phone,
+                    passportNumber: bookingForm.passport,
+                    dateOfBirth: bookingForm.dateOfBirth,
+                    nationality: bookingForm.nationality,
+                    address: bookingForm.address
+                },
+                flight: {
+                    airline: {
+                        airlineName: bookingForm.airline
+                    },
+                    flightSchedule: {
+                        scheduleID: selectedFlight?.scheduleID
+                    }
+                },
+                seat: {
+                    seatClass: {
+                        classType: seatClass
+                    }
+                },
+                booking: {
+                    bookingDate: new Date()
+                },
+                baggageWeight: bookingForm.baggageWeight,
+                finalPrice: finalPrice
+            };
+
+            const response = await fetch('http://localhost:8080/api/tickets/book', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(bookingData)
+            });
+
+            if (!response.ok) {
+                throw new Error(`Booking failed: ${response.statusText}`);
+            }
+
             alert('Booking successful!');
             setIsBookingModalOpen(false);
-            // Reset form
-            setBookingForm({
-              firstName: '',
-              lastName: '',
-              age: '',
-              email: '',
-              phone: '',
-              passport: '',
-              dateOfBirth: '',
-              nationality: '',
-              address: '',
-              baggage_weight: 0,
-              airline: '' // Add this
-            });
-          } else {
-            throw new Error('Booking failed');
-          }
-        } catch (error) {
-          console.error('Error:', error);
-          alert('Failed to create booking');
+            resetForm();
+            
+        } catch (error: any) {
+            console.error('Booking error:', error);
+            alert(error.message || 'Failed to create booking');
+        } finally {
+            setIsLoading(false);
         }
+    };
+
+    const resetForm = () => {
+        setBookingForm({
+            firstName: '',
+            lastName: '',
+            age: '',
+            email: '',
+            phone: '',
+            passport: '',
+            dateOfBirth: '',
+            nationality: '',
+            address: '',
+            baggageWeight: 0,
+            airline: ''
+        });
     };
 
     const formatDate = (dateString: string) => {
@@ -355,9 +405,7 @@ export default function Flight() {
                                     type="email"
                                     required
                                     value={bookingForm.email}
-                                    placeholder="example@email.com"
-                                    pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
-                                    title="Please enter a valid email address"
+                                    placeholder="Enter your email"
                                     onChange={(e) => setBookingForm({...bookingForm, email: e.target.value})}
                                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-zinc-700 placeholder-gray-400 pl-2"
                                 />
@@ -417,9 +465,9 @@ export default function Flight() {
                                 <input
                                     type="number"
                                     required
-                                    value={bookingForm.baggage_weight}
+                                    value={bookingForm.baggageWeight}
                                     placeholder='Enter your baggage weight'
-                                    onChange={(e) => setBookingForm({...bookingForm, baggage_weight: parseInt(e.target.value)})}
+                                    onChange={(e) => setBookingForm({...bookingForm, baggageWeight: parseInt(e.target.value)})}
                                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-zinc-700 placeholder-gray-400 pl-2"
                                 />
                             </div>

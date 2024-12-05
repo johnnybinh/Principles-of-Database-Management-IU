@@ -12,7 +12,7 @@ public class FlightBase {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "flightid", nullable = false)
+    @Column(name = "flightid", nullable = false, length=5)
     private String flightID;
 
     @ManyToOne

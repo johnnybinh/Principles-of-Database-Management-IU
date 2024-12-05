@@ -12,7 +12,7 @@ public class Airport {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "airportid", nullable = false)
+    @Column(name = "airportid", nullable = false, length=5)
     private String airportID;
 
     @Column(name = "airport_name", nullable = false)

@@ -11,7 +11,7 @@ import lombok.Setter;
 public class SeatClass {
 
     @Id
-    @Column(name = "class_type", nullable = false)
+    @Column(name = "class_type", nullable = false, length = 100)
     private String classType;
 
     @Column(name = "base_price", nullable = false)

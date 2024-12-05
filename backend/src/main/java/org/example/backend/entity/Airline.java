@@ -12,7 +12,7 @@ public class Airline {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "airlineid", nullable = false)
+    @Column(name = "airlineid", nullable = false, length=5)
     private String airlineID;
 
     @Column(name = "airline_name", nullable = false)
@@ -21,5 +21,7 @@ public class Airline {
     public Airline(String airlineName) {
         this.airlineName = airlineName;
     }
+
+    public Airline() {}
 
 }

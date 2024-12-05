@@ -12,7 +12,7 @@ public class AirportStaff {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "airport_staff_id", nullable = false)
+    @Column(name = "airport_staff_id", nullable = false, length=5)
     private String airportStaffID;
 
     @ManyToOne

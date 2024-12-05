@@ -8,6 +8,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Repository
 public interface PassengerRepository extends JpaRepository<Passenger, Long> {
 
@@ -15,4 +17,8 @@ public interface PassengerRepository extends JpaRepository<Passenger, Long> {
     @Transactional
     @Query("DELETE FROM Passenger p WHERE p.passengerID = :passengerID")
     void deleteByPassengerID(@Param("passengerID") String passengerID);
+
+    @Query("SELECT p FROM Passenger p ORDER BY p.passengerID DESC LIMIT 1")
+    Optional<Passenger> findTopByOrderByPassengerIDDesc();
+
 }

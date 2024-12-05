@@ -15,7 +15,7 @@ public class FlightSchedule {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "scheduleid", nullable = false)
+    @Column(name = "scheduleid", nullable = false, length=5)
     private String scheduleID;
 
     @ManyToOne
@@ -40,6 +40,10 @@ public class FlightSchedule {
 
     public FlightSchedule(String scheduleID) {
         this.scheduleID = scheduleID;
+    }
+
+    public FlightSchedule() {
+
     }
 
     @PostLoad

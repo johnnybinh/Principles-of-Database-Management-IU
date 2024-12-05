@@ -12,7 +12,7 @@ public class FlightStatus {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "statusid", nullable = false)
+    @Column(name = "statusid", nullable = false, length=5)
     private String statusID;
 
     @Column(name = "status", nullable = false)
