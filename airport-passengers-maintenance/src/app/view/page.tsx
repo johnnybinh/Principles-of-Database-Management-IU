@@ -372,10 +372,37 @@ export default function View() {
                     {ticket.flightBase.flightSchedule.arrival}
                   </TableCell>
                   <TableCell className="px-6 py-4 text-center text-lg">
-                    {ticket.flightBase.flightSchedule.flightDuration} hrs
+                    {ticket.flightBase.flightSchedule.flightDuration} hours
                   </TableCell>
-                  <TableCell className={`px-6 py-4 text-center text-lg ${getStatusColor(ticket.flightBase.flightSchedule.flightStatus.status)}`}>
-                    {ticket.flightBase.flightSchedule.flightStatus.status}
+                  <TableCell 
+                    className={`
+                      p-2
+                      min-h-[64px]
+                      min-w-[120px]
+                      relative
+                    `}
+                  >
+                    <div 
+                      className={`
+                        flex items-center justify-center
+                        text-center text-xl font-extrabold 
+                        ${getStatusColor(ticket.flightBase.flightSchedule.flightStatus.status)}
+                        ${ticket.flightBase.flightSchedule.flightStatus.status.toLowerCase() === 'on time' 
+                          ? 'bg-green-100' 
+                          : ticket.flightBase.flightSchedule.flightStatus.status.toLowerCase() === 'cancelled' 
+                          ? 'bg-red-100' 
+                          : 'bg-amber-100'
+                        }
+                        rounded-lg
+                        shadow-sm
+                        whitespace-nowrap
+                        px-6 py-3
+                        h-full w-[calc(100%-8px)]
+                      `}
+                    >
+                      {ticket.flightBase.flightSchedule.flightStatus.status.toLowerCase() === 'cancelled' 
+                      ? 'Cancel' : ticket.flightBase.flightSchedule.flightStatus.status.toUpperCase()}
+                    </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex space-x-2 justify-center">
@@ -444,11 +471,21 @@ export default function View() {
                   </div>
                   <div className="col-span-2 space-y-2">
                     <p className='text-black'><span className="font-medium">Duration:</span> {selectedTicket.flightBase.flightSchedule.flightDuration} Hours</p>
-                    <p className='text-black'><span className="font-medium">Status:</span> 
-                      <span className={`ml-2 px-2 py-1 rounded-full text-xl ${
-                        getStatusColor(selectedTicket.flightBase.flightSchedule.flightStatus.status)
-                      }`}>
-                        {selectedTicket.flightBase.flightSchedule.flightStatus.status}
+                    <p className='text-black'>
+                      <span className="font-medium">Status:</span> 
+                      <span className={`
+                        ml-2 px-4 py-1.5 
+                        rounded-full text-xl 
+                        font-extrabold
+                        ${getStatusColor(selectedTicket.flightBase.flightSchedule.flightStatus.status)}
+                        ${selectedTicket.flightBase.flightSchedule.flightStatus.status.toLowerCase() === 'on time' ? 'bg-green-100' : 
+                          selectedTicket.flightBase.flightSchedule.flightStatus.status.toLowerCase() === 'cancelled' ? 'bg-red-100' : 
+                          'bg-amber-100'
+                        }
+                        transition-all duration-200
+                        shadow-sm
+                      `}>
+                        {selectedTicket.flightBase.flightSchedule.flightStatus.status.toUpperCase()}
                       </span>
                     </p>
                   </div>

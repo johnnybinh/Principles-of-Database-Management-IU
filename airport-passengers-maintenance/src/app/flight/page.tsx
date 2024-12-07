@@ -328,9 +328,29 @@ export default function Flight() {
                                 <TableCell className="px-6 py-4 text-center">{formatDate(item.arrivalDate)}</TableCell>
                                 <TableCell className="px-6 py-4 text-center">{item.departure}</TableCell>
                                 <TableCell className="px-6 py-4 text-center">{item.arrival}</TableCell>
-                                <TableCell className="px-6 py-4 text-center">{item.flightDuration} hrs</TableCell>
-                                <TableCell className={`px-6 py-4 text-center ${getStatusColor(item.flightStatus.status)}`}>
-                                    {item.flightStatus.status}
+                                <TableCell className="px-6 py-4 text-center">{item.flightDuration} hourrs</TableCell>
+                                <TableCell className={`p-2 min-h-[64px] min-w-[120px] relative`}>
+                                    <div 
+                                        className={`
+                                            flex items-center justify-center
+                                            text-center text-xl font-extrabold 
+                                            ${getStatusColor(item.flightStatus.status)}
+                                            ${item.flightStatus.status.toLowerCase() === 'on time' 
+                                            ? 'bg-green-100' 
+                                            : item.flightStatus.status.toLowerCase() === 'cancelled' 
+                                            ? 'bg-red-100' 
+                                            : 'bg-amber-100'
+                                            }
+                                            rounded-lg
+                                            shadow-sm
+                                            whitespace-nowrap
+                                            px-6 py-3
+                                            h-full w-[calc(100%-8px)]
+                                        `}
+                                    >
+                                    {item.flightStatus.status.toLowerCase() === 'cancelled' 
+                                    ? 'Cancel' : item.flightStatus.status.toUpperCase()}
+                                    </div>
                                 </TableCell>
                                 <TableCell className="px-6 py-4 text-center">
                                     {item.flightStatus.status.toLowerCase() !== 'cancelled' && (
