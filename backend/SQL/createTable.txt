@@ -30,7 +30,7 @@ CREATE TABLE passenger (
                            nationality VARCHAR(50) NOT NULL,
                            passport_number CHAR(9) UNIQUE,
                            email VARCHAR(100) NOT NULL,
-                           phone_number CHAR(12)NOT NULL,
+                           phone_number VARCHAR(10) NOT NULL,
                            address VARCHAR(200) NOT NULL
 );
 
@@ -44,7 +44,7 @@ CREATE TABLE employee (
                           role VARCHAR(50) not null,
                           salary DECIMAL(18, 2) not null,
                           address VARCHAR(200) not null,
-                          phone_number VARCHAR(15) not null
+                          phone_number VARCHAR(10) not null
 );
 
 CREATE TABLE booking (

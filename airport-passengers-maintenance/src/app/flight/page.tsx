@@ -1,6 +1,6 @@
 "use client";
 
-import { FlightSchedule } from '../types/types';
+import { FlightSchedule, FlightBase } from '../types/types';
 
 import {
     Table,
@@ -38,7 +38,7 @@ const isValidEmail = (email: string): boolean => {
 export default function Flight() {
     const table_header = ["Departure Date", "Arrival Date", "Departure", "Arrival", "Duration", "Status", "Booking"];
 
-    const [flightSchedule, setFlightSchedule] = useState<FlightSchedule[]>([]);
+    const [flightBase, setFlightBase] = useState<FlightBase[]>([]);
     const [error, setError] = useState<string | null>(null);
 
     const [departureDate, setDepartureDate] = useState<string>('');
@@ -47,7 +47,7 @@ export default function Flight() {
     const [arrival, setArrival] = useState<string>('');
 
     const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
-    const [selectedFlight, setSelectedFlight] = useState<FlightSchedule | null>(null);
+    const [selectedFlightBase, setSelectedFlightBase] = useState<FlightBase | null>(null);
     const [bookingForm, setBookingForm] = useState({
         firstName: '',
         lastName: '',
@@ -59,7 +59,6 @@ export default function Flight() {
         nationality: '',
         address: '',
         baggageWeight: 0,
-        airline: '' 
     });
 
     const [seatClass, setSeatClass] = useState<keyof typeof SEAT_CLASS_PRICES>('Economy');
@@ -89,9 +88,11 @@ export default function Flight() {
                     ...(arrivalDate && { arrivalDate })
                 });
 
-                const res = await fetch(`http://localhost:8080/api/flight_schedules?${params}`, {
+                const res = await fetch(`http://localhost:8080/api/flight-base/search?${params}`, {
+                    method: 'GET',
                     headers: {
                         'Accept': 'application/json',
+                        'Content-Type': 'application/json'
                     },
                 });
 
@@ -99,8 +100,8 @@ export default function Flight() {
                     throw new Error(`Network response was not ok: ${res.status} ${res.statusText}`);
                 }
 
-                const data: FlightSchedule[] = await res.json();
-                setFlightSchedule(data);
+                const data: FlightBase[] = await res.json();
+                setFlightBase(data);
             } catch (err: any) {
                 console.error('Fetch error:', err);
                 setError(err.message);
@@ -110,8 +111,8 @@ export default function Flight() {
         fetchData();
     }
 
-    const handleBook = (flight: FlightSchedule) => {
-        setSelectedFlight(flight);
+    const handleBook = (flightBase: FlightBase) => {
+        setSelectedFlightBase(flightBase);
         setFinalPrice(calculateRandomPrice());
         setIsBookingModalOpen(true);
     };
@@ -154,12 +155,7 @@ export default function Flight() {
                     address: bookingForm.address
                 },
                 flight: {
-                    airline: {
-                        airlineName: bookingForm.airline
-                    },
-                    flightSchedule: {
-                        scheduleID: selectedFlight?.scheduleID
-                    }
+                    flightBaseID: selectedFlightBase?.flightID,
                 },
                 seat: {
                     seatClass: {
@@ -209,7 +205,6 @@ export default function Flight() {
             nationality: '',
             address: '',
             baggageWeight: 0,
-            airline: ''
         });
     };
 
@@ -322,22 +317,22 @@ export default function Flight() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {flightSchedule.map((item, index) => (
+                        {flightBase.map((item, index) => (
                             <TableRow key={index} className="bg-white/50 text-center text-base text-black uppercase tracking-wider hover:bg-white/70 transition-colors duration-200">
-                                <TableCell className="px-6 py-4 text-center">{formatDate(item.departureDate)}</TableCell>
-                                <TableCell className="px-6 py-4 text-center">{formatDate(item.arrivalDate)}</TableCell>
-                                <TableCell className="px-6 py-4 text-center">{item.departure}</TableCell>
-                                <TableCell className="px-6 py-4 text-center">{item.arrival}</TableCell>
-                                <TableCell className="px-6 py-4 text-center">{item.flightDuration} hourrs</TableCell>
+                                <TableCell className="px-6 py-4 text-center">{formatDate(item.flightSchedule.departureDate)}</TableCell>
+                                <TableCell className="px-6 py-4 text-center">{formatDate(item.flightSchedule.arrivalDate)}</TableCell>
+                                <TableCell className="px-6 py-4 text-center">{item.flightSchedule.departure}</TableCell>
+                                <TableCell className="px-6 py-4 text-center">{item.flightSchedule.arrival}</TableCell>
+                                <TableCell className="px-6 py-4 text-center">{item.flightSchedule.flightDuration} hrs</TableCell>
                                 <TableCell className={`p-2 min-h-[64px] min-w-[120px] relative`}>
                                     <div 
                                         className={`
                                             flex items-center justify-center
                                             text-center text-xl font-extrabold 
-                                            ${getStatusColor(item.flightStatus.status)}
-                                            ${item.flightStatus.status.toLowerCase() === 'on time' 
+                                            ${getStatusColor(item.flightSchedule.flightStatus.status)}
+                                            ${item.flightSchedule.flightStatus.status.toLowerCase() === 'on time' 
                                             ? 'bg-green-100' 
-                                            : item.flightStatus.status.toLowerCase() === 'cancelled' 
+                                            : item.flightSchedule.flightStatus.status.toLowerCase() === 'cancelled' 
                                             ? 'bg-red-100' 
                                             : 'bg-amber-100'
                                             }
@@ -348,12 +343,12 @@ export default function Flight() {
                                             h-full w-[calc(100%-8px)]
                                         `}
                                     >
-                                    {item.flightStatus.status.toLowerCase() === 'cancelled' 
-                                    ? 'Cancel' : item.flightStatus.status.toUpperCase()}
+                                    {item.flightSchedule.flightStatus.status.toLowerCase() === 'cancelled' 
+                                    ? 'Cancel' : item.flightSchedule.flightStatus.status.toUpperCase()}
                                     </div>
                                 </TableCell>
                                 <TableCell className="px-6 py-4 text-center">
-                                    {item.flightStatus.status.toLowerCase() !== 'cancelled' && (
+                                    {item.flightSchedule.flightStatus.status.toLowerCase() !== 'cancelled' && (
                                         <Button 
                                             onClick={() => handleBook(item)}
                                             className="bg-black text-white font-bold text-lg py-2 px-4 rounded-lg shadow-md hover:bg-gray-800 focus:outline-none transform hover:scale-105 transition-transform duration-200">
@@ -502,23 +497,6 @@ export default function Flight() {
                                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-zinc-700 placeholder-gray-400 pl-2"
                                     rows={3}
                                 />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-white">Airline</label>
-                                <select
-                                    required
-                                    value={bookingForm.airline}
-                                    onChange={(e) => setBookingForm({...bookingForm, airline: e.target.value})}
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-zinc-700 placeholder-gray-400 pl-2"
-                                >
-                                    <option value="">Select Airline</option>
-                                    {AIRLINES.map((airline) => (
-                                        <option key={airline} value={airline}>
-                                            {airline}
-                                        </option>
-                                    ))}
-                                </select>
                             </div>
 
                             <div>

@@ -37,7 +37,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                     "/api/tickets/**",
-                    "/api/flight_schedules/**"
+                    "/api/flight_schedules/**",
+                    "/api/flight-base/**"
                 ).permitAll()
                 .anyRequest().authenticated()
             )
