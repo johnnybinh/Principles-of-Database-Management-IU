@@ -117,18 +117,18 @@ public class TicketService {
 
     private Booking convertToEntity(BookingDTO bookingDTO) {
         Booking booking = new Booking();
-        
+
         // Handle null BookingDTO
         if (bookingDTO == null) {
             booking.setBookingDate(Date.valueOf(LocalDateTime.now().toLocalDate()));
             return booking;
         }
-        
+
         // Safe conversion with null checks
-        booking.setBookingDate(bookingDTO.getBookingDate() != null ? 
-            bookingDTO.getBookingDate() : 
+        booking.setBookingDate(bookingDTO.getBookingDate() != null ?
+            bookingDTO.getBookingDate() :
             Date.valueOf(LocalDateTime.now().toLocalDate()));
-        
+
         return booking;
     }
 
@@ -140,26 +140,26 @@ public class TicketService {
 
     private FlightBase convertToEntity(FlightBaseDTO flightBaseDTO) {
         FlightBase flightBase = new FlightBase();
-        
+
         // Handle null FlightBaseDTO
         if (flightBaseDTO == null) {
             return flightBase;
         }
-        
+
         // Handle Airline conversion with null checks
         if (flightBaseDTO.getAirline() != null && flightBaseDTO.getAirline().getAirlineName() != null) {
             Airline airline = new Airline("Unknown");
             airline.setAirlineName(flightBaseDTO.getAirline().getAirlineName());
             flightBase.setAirline(airline);
         }
-        
+
         // Handle FlightSchedule conversion with null checks
         if (flightBaseDTO.getFlightSchedule() != null) {
             FlightSchedule schedule = new FlightSchedule();
             schedule.setScheduleID(flightBaseDTO.getFlightSchedule().getScheduleID());
             flightBase.setFlightSchedule(schedule);
         }
-        
+
         return flightBase;
     }
 
@@ -190,8 +190,8 @@ public class TicketService {
     // Create Ticket
     @Transactional
     public Ticket createTicket(TicketDTO ticketDTO) {
-        if (ticketDTO.getFlight() == null || 
-            ticketDTO.getFlight().getAirline() == null || 
+        if (ticketDTO.getFlight() == null ||
+            ticketDTO.getFlight().getAirline() == null ||
             ticketDTO.getFlight().getAirline().getAirlineName() == null) {
             throw new IllegalArgumentException("Flight and airline information are required");
         }
@@ -211,7 +211,14 @@ public class TicketService {
         booking.setBookingDate(Date.valueOf(LocalDateTime.now().toLocalDate()));
         booking = bookingRepository.save(booking);
 
-        // Flight Base
+        // Fetch FlightBase by flightID
+        FlightBase flightBase = flightBaseRepository.findByFlightID(ticketDTO.getFlight().getFlightID());
+
+        // Convert and save seat
+        Seat seat = ticketDTO.getSeat() != null ?
+                convertToEntity(ticketDTO.getSeat()) :
+                new Seat();
+        seat = seatRepository.save(seat);
 
         // Create and save the ticket with generated ID
         String ticketId = generateTicketID();
@@ -221,6 +228,8 @@ public class TicketService {
         ticket.setTicketID(ticketId);
         ticket.setPassenger(passenger);
         ticket.setBooking(booking);
+        ticket.setSeat(seat);
+        ticket.setFlightBase(flightBase);
         ticket.setFinalPrice(ticketDTO.getFinalPrice());
         ticket.setBaggageWeight(ticketDTO.getBaggageWeight());
 
@@ -301,16 +310,5 @@ public class TicketService {
         );
     }
 
-    // Update FlightBase to DTO conversion
-    private FlightBaseDTO convertToDTO(FlightBase flightBase) {
-        Random random = new Random();
-        flightBase.setGateNumber(random.nextInt(20) + 1);
-        return new FlightBaseDTO(
-            flightBase.getGateNumber(),
-            convertToDTO(flightBase.getAirline()),
-            convertToDTO(flightBase.getFlightSchedule()),
-            convertToDTO(flightBase.getAirport()) // Add airport conversion
-        );
-    }
 }
 

@@ -3,11 +3,9 @@ package org.example.backend.controller;
 import org.example.backend.entity.FlightSchedule;
 import org.example.backend.service.FlightScheduleService;
 
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @RestController

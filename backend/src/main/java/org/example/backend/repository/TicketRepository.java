@@ -1,6 +1,5 @@
 package org.example.backend.repository;
 
-import org.example.backend.entity.Booking;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

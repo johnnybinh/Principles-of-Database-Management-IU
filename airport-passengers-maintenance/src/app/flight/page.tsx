@@ -21,13 +21,6 @@ const SEAT_CLASS_PRICES = {
     'First Class': 3000000
 } as const;
 
-// Add airline options constant
-const AIRLINES = [
-    'Vietnam Airlines',
-    'Bamboo Airways',
-    'VietJet Air'
-];
-
 // Update email validation regex
 const isValidEmail = (email: string): boolean => {
     // Simplified but robust email regex
@@ -36,7 +29,16 @@ const isValidEmail = (email: string): boolean => {
 };
 
 export default function Flight() {
-    const table_header = ["Departure Date", "Arrival Date", "Departure", "Arrival", "Duration", "Status", "Booking"];
+    const table_header = [
+        "Departure Date", 
+        "Arrival Date", 
+        "Departure", 
+        "Arrival", 
+        "Duration", 
+        "Status", 
+        "Airline",  
+        "Booking"   
+    ];
 
     const [flightBase, setFlightBase] = useState<FlightBase[]>([]);
     const [error, setError] = useState<string | null>(null);
@@ -132,10 +134,11 @@ export default function Flight() {
         return true;
     };
 
+        // Update handleBookingSubmit function
     const handleBookingSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
-        if (!validateForm()) {
+        if (!validateForm() || !selectedFlightBase) {
             return;
         }
         
@@ -155,7 +158,7 @@ export default function Flight() {
                     address: bookingForm.address
                 },
                 flight: {
-                    flightBaseID: selectedFlightBase?.flightID,
+                    flightID: selectedFlightBase.flightID  // Update this line
                 },
                 seat: {
                     seatClass: {
@@ -168,7 +171,7 @@ export default function Flight() {
                 baggageWeight: bookingForm.baggageWeight,
                 finalPrice: finalPrice
             };
-
+    
             const response = await fetch('http://localhost:8080/api/tickets/book', {
                 method: 'POST',
                 headers: {
@@ -176,11 +179,11 @@ export default function Flight() {
                 },
                 body: JSON.stringify(bookingData)
             });
-
+    
             if (!response.ok) {
                 throw new Error(`Booking failed: ${response.statusText}`);
             }
-
+    
             alert('Booking successful!');
             setIsBookingModalOpen(false);
             resetForm();
@@ -346,6 +349,9 @@ export default function Flight() {
                                     {item.flightSchedule.flightStatus.status.toLowerCase() === 'cancelled' 
                                     ? 'Cancel' : item.flightSchedule.flightStatus.status.toUpperCase()}
                                     </div>
+                                </TableCell>
+                                <TableCell className="px-6 py-4 text-center">
+                                    {item.airline.airlineName}
                                 </TableCell>
                                 <TableCell className="px-6 py-4 text-center">
                                     {item.flightSchedule.flightStatus.status.toLowerCase() !== 'cancelled' && (

@@ -23,4 +23,7 @@ public interface FlightBaseRepository extends JpaRepository<FlightBase, Long> {
             @Param("departureDate") LocalDate departureDate,
             @Param("arrivalDate") LocalDate arrivalDate
     );
+
+    @Query("SELECT fb FROM FlightBase fb WHERE fb.flightID = :flightID")
+    FlightBase findByFlightID(@Param("flightID") String flightID);
 }
