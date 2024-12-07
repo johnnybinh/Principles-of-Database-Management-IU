@@ -20,8 +20,14 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     @Query("SELECT COUNT(t) FROM Ticket t WHERE t.passenger.passengerID = :passengerID")
     int countByPassengerID(@Param("passengerID") String passengerID);
 
-    @Query("SELECT t FROM Ticket t WHERE t.passenger.email = :email")
-    List<Ticket> findAllByPassengerID_Email(String email);
+    @Query("SELECT DISTINCT t FROM Ticket t " +
+           "LEFT JOIN FETCH t.passenger " +
+           "LEFT JOIN FETCH t.booking " +
+           "LEFT JOIN FETCH t.seat s " +
+           "LEFT JOIN FETCH s.seatClass " +
+           "LEFT JOIN FETCH t.flightBase " +
+           "WHERE t.passenger.email = :email")
+    List<Ticket> findAllByPassengerID_Email(@Param("email") String email);
 
     @Modifying  // Required for modifying queries
     @Transactional // Ensures transaction management

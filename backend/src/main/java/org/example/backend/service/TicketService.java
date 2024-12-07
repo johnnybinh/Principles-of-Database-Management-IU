@@ -66,6 +66,7 @@ public class TicketService {
         return ticketRepository.save(ticket);
     }
 
+    @Transactional(readOnly = true)
     public List<Ticket> getTicketsByEmail(String email) {
         return ticketRepository.findAllByPassengerID_Email(email);
     }
