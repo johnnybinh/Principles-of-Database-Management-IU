@@ -19,6 +19,6 @@ public interface PassengerRepository extends JpaRepository<Passenger, Long> {
     void deleteByPassengerID(@Param("passengerID") String passengerID);
 
     @Query("SELECT p FROM Passenger p ORDER BY p.passengerID DESC LIMIT 1")
-    Optional<Passenger> findTopByOrderByPassengerIDDesc();
+    Optional<Passenger> findFirstByOrderByPassengerIDDesc();
 
 }

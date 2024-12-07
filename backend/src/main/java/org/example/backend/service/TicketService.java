@@ -34,13 +34,19 @@ public class TicketService {
     private final BookingRepository bookingRepository;
 
     @Autowired
-    private IDGenerator idGenerator = new IDGenerator();
-
-    @Autowired
     private SeatRepository seatRepository;
 
     @Autowired
     private FlightBaseRepository flightBaseRepository;
+
+    @Autowired
+    private IDGenerator idGenerator = new IDGenerator();
+
+    // Add constants for ID prefixes and digits
+    private static final String PASSENGER_PREFIX = "PA";
+    private static final String BOOKING_PREFIX = "BK";
+    private static final String TICKET_PREFIX = "TK";
+    private static final int ID_DIGITS = 3;
 
     public TicketService(TicketRepository ticketRepository,
                          PassengerRepository passengerRepository,
@@ -157,77 +163,70 @@ public class TicketService {
         return flightBase;
     }
 
+    // ===========================================================================
+    // Generate ID
     private String generatePassengerID() {
-        String lastId = passengerRepository.findTopByOrderByPassengerIDDesc()
+        String lastId = passengerRepository.findFirstByOrderByPassengerIDDesc()
                 .map(Passenger::getPassengerID)
                 .orElse("PA000"); // Start from PA001 if no passengers exist
-        return idGenerator.generateID(lastId, "PA", 3);
+        return idGenerator.generateID(lastId, PASSENGER_PREFIX, ID_DIGITS);
     }
 
+    private String generateBookingID() {
+        String lastId = bookingRepository.findFirstByOrderByBookingIDDesc()
+                .map(Booking::getBookingID)
+                .orElse("BK000"); // Start from PA001 if no passengers exist
+        return idGenerator.generateID(lastId, BOOKING_PREFIX, ID_DIGITS);
+    }
+
+    private String generateTicketID() {
+        String lastId = ticketRepository.findFirstByOrderByTicketIDDesc()
+                .map(Ticket::getTicketID)
+                .orElse("TK000"); // Start from TK001 if no tickets exist
+        return idGenerator.generateID(lastId, TICKET_PREFIX, ID_DIGITS);
+    }
+
+    // ===========================================================================
+    // Create Ticket
     @Transactional
-    public TicketDTO createTicket(TicketDTO ticketDTO) {
+    public Ticket createTicket(TicketDTO ticketDTO) {
         if (ticketDTO.getFlight() == null || 
             ticketDTO.getFlight().getAirline() == null || 
             ticketDTO.getFlight().getAirline().getAirlineName() == null) {
             throw new IllegalArgumentException("Flight and airline information are required");
         }
 
-        // Convert and save passenger first
+        // Convert and save passenger with generated ID
         Passenger passenger = ticketDTO.getPassenger() != null ?
                 convertToEntity(ticketDTO.getPassenger()) :
                 new Passenger();
+        String passengerId = generatePassengerID();
+        passenger.setPassengerID(passengerId);
         passenger = passengerRepository.save(passenger);
 
-        // Create and save booking with passenger reference
+        // Create and save booking with generated ID
         Booking booking = convertToEntity(ticketDTO.getBooking());
+        String bookingId = generateBookingID();
+        booking.setBookingID(bookingId);
         booking.setBookingDate(Date.valueOf(LocalDateTime.now().toLocalDate()));
         booking = bookingRepository.save(booking);
 
-        // Handle seat
-        Seat seat = ticketDTO.getSeat() != null ?
-                convertToEntity(ticketDTO.getSeat()) :
-                new Seat();
-        seat = seatRepository.save(seat);
+        // Flight Base
 
-        // Handle flight base
-        FlightBase flightBase = ticketDTO.getFlight() != null ?
-                convertToEntity(ticketDTO.getFlight()) :
-                new FlightBase();
-        flightBase = flightBaseRepository.save(flightBase);
-
-        // Fetch and set IDs
-        String airlineID = getAirlineIdByName(flightBase.getAirline().getAirlineName());
-        Seat finalSeat = seat;
-        SeatClass seatClass = seatClassRepository.findByType(seat.getSeatClass().getClassType())
-                .orElseThrow(() -> new RuntimeException("Seat class not found with type: " + finalSeat.getSeatClass().getClassType()));
-
-        flightBase.getAirline().setAirlineID(airlineID);
-        seat.setSeatClass(seatClass);
+        // Create and save the ticket with generated ID
+        String ticketId = generateTicketID();
 
         // Create and save ticket with all references
         Ticket ticket = new Ticket();
+        ticket.setTicketID(ticketId);
         ticket.setPassenger(passenger);
         ticket.setBooking(booking);
-        ticket.setSeat(seat);
-        ticket.setFlightBase(flightBase);
         ticket.setFinalPrice(ticketDTO.getFinalPrice());
         ticket.setBaggageWeight(ticketDTO.getBaggageWeight());
 
         ticket = ticketRepository.save(ticket);
 
-        return convertToDTO(ticket);
-    }
-
-    // Add convertToDTO method
-    private TicketDTO convertToDTO(Ticket ticket) {
-        return new TicketDTO(
-            convertToDTO(ticket.getPassenger()),
-            convertToDTO(ticket.getBooking()),
-            convertToDTO(ticket.getSeat()),
-            convertToDTO(ticket.getFlightBase()),
-            ticket.getFinalPrice(),
-            ticket.getBaggageWeight()
-        );
+        return ticket;
     }
 
     // Add helper conversion methods

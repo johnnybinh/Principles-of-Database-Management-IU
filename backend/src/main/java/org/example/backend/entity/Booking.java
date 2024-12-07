@@ -13,7 +13,6 @@ import java.sql.Date;
 public class Booking {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "bookingid", nullable = false, length=5)
     private String bookingID;
 
@@ -21,5 +20,5 @@ public class Booking {
     private Date bookingDate; // DATETIME
 
     @Column(name = "Payment_status", nullable = false)
-    private String paymentStatus;
+    private String paymentStatus = "Pending";
 }

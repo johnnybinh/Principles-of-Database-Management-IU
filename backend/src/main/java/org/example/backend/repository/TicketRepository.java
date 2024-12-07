@@ -1,5 +1,6 @@
 package org.example.backend.repository;
 
+import org.example.backend.entity.Booking;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -10,6 +11,7 @@ import org.example.backend.entity.Ticket;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
@@ -34,6 +36,6 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     @Query("DELETE FROM Ticket t WHERE t.ticketID = :ticketID")
     void deleteByTicketID(@Param("ticketID") String ticketID);
 
-
-
+    @Query("SELECT t FROM Ticket t ORDER BY t.ticketID DESC LIMIT 1")
+    Optional<Ticket> findFirstByOrderByTicketIDDesc();
 }

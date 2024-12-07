@@ -60,7 +60,7 @@ public class TicketController {
     }
 
     @PostMapping("/book")
-    public ResponseEntity<TicketDTO> createTicket(@RequestBody TicketDTO ticketDTO) {
+    public ResponseEntity<Ticket> createTicket(@RequestBody TicketDTO ticketDTO) {
         return ResponseEntity.ok(ticketService.createTicket(ticketDTO));
     }
 
