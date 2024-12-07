@@ -6,9 +6,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.example.backend.entity.Ticket;
 import org.example.backend.service.TicketService;
-import org.springframework.http.MediaType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -17,7 +14,6 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:3000")
 public class TicketController {
 
-    private static final Logger log = LoggerFactory.getLogger(TicketController.class);
     private final TicketService ticketService;
 
     public TicketController(TicketService ticketService) {
@@ -30,7 +26,7 @@ public class TicketController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getTicketById(@PathVariable String id) {
+    public ResponseEntity<?> getTicketById(@PathVariable Long id) {
         Ticket ticket = ticketService.getTicketById(id);
         if (ticket == null) {
             return ResponseEntity.notFound().build();
@@ -55,16 +51,12 @@ public class TicketController {
 
     @GetMapping("/email/{email}")
     public ResponseEntity<?> getTicketsByEmail(@PathVariable String email) {
-        try {
-            List<Ticket> tickets = ticketService.getTicketsByEmail(email);
-            return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(tickets);
-        } catch (Exception e) {
-            log.error("Error fetching tickets for email {}: {}", email, e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Error fetching tickets: " + e.getMessage());
+        List<Ticket> tickets = ticketService.getTicketsByEmail(email);
+        if (tickets.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("No tickets found for the provided email.");
         }
+        return ResponseEntity.ok(tickets);
     }
 
     @PostMapping("/book")

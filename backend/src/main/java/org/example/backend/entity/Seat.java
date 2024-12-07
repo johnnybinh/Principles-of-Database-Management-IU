@@ -11,9 +11,10 @@ import lombok.Setter;
 public class Seat {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "seat_number", nullable = false, length = 5)
     private String seatNumber;
-    
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "class_type", insertable = false, updatable = false)
     private SeatClass seatClass;
