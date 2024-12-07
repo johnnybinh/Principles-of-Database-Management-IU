@@ -15,9 +15,9 @@ INSERT INTO airline (airlineid, airline_name) VALUES
 ('AL003', 'VietJet Air'); # if we need more data using the data in Airline.txt
 
 INSERT INTO airport (airportid, airport_name, country, city) VALUES
-('AP001', 'Noi Bai International Airport', 'Vietnam', 'Hanoi'),
-('AP002', 'Tan Son Nhat International Airport', 'Vietnam', 'Ho Chi Minh City'),
-('AP003', 'Da Nang International Airport', 'Vietnam', 'Da Nang');
+('AP001', 'Noi Bai International Airport', 'Viet Nam', 'Hanoi'),
+('AP002', 'Tan Son Nhat International Airport', 'Viet Nam', 'Ho Chi Minh City'),
+('AP003', 'Da Nang International Airport', 'Viet Nam', 'Da Nang'); # if we need more data using the data in Airport.txt
 
 INSERT INTO seat_class (class_type, base_price) VALUES
 ('Economy', 1000000.00),
