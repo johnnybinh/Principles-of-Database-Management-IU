@@ -10,6 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 // Define interface for the selected ticket
 interface SelectedTicket extends Ticket {}
@@ -26,27 +27,42 @@ export default function View() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<SelectedTicket | null>(null);
 
+  // Add state for cancel dialog
+  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
+  const [ticketToCancel, setTicketToCancel] = useState<string | null>(null);
+  const [isCancelling, setIsCancelling] = useState(false);
+
+  // Add new state for no tickets dialog
+  const [showNoTicketsDialog, setShowNoTicketsDialog] = useState(false);
+
+  // Add state for empty email dialog
+  const [showEmptyEmailDialog, setShowEmptyEmailDialog] = useState(false);
+
+  // Modify handleFetchTickets to show dialog
   const handleFetchTickets = async () => {
     if (!email) {
-      setError('Please enter an email');
+      setShowEmptyEmailDialog(true);
       return;
     }
-
+  
     try {
       setLoading(true);
       setError(null);
       const response = await fetch(`http://localhost:8080/api/tickets/email/${encodeURIComponent(email)}`);
       
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        setShowNoTicketsDialog(true);
+        return;
       }
       
       const data: Ticket[] = await response.json();
-      console.log('Fetched Tickets:', data); // Add this line
-      setTickets(data);
+      if (data.length === 0) {
+        setShowNoTicketsDialog(true);
+      } else {
+        setTickets(data);
+      }
     } catch (err) {
-      setError('Failed to fetch tickets');
-      console.error('Error:', err);
+      setShowNoTicketsDialog(true);
     } finally {
       setLoading(false);
     }
@@ -82,25 +98,33 @@ export default function View() {
     }
   };
 
-  const handleCancel = async (ticketID: string) => {
-    if (!confirm('Are you sure you want to cancel this ticket?')) {
-      return;
-    }
-  
+  // Update handleCancel function
+  const handleCancel = (ticketID: string) => {
+    setTicketToCancel(ticketID);
+    setIsCancelDialogOpen(true);
+  };
+
+  // Add confirmation handler
+  const confirmCancel = async () => {
+    if (!ticketToCancel) return;
+    
+    setIsCancelling(true);
     try {
-      const response = await fetch(`http://localhost:8080/api/tickets/${ticketID}`, {
+      const response = await fetch(`http://localhost:8080/api/tickets/${ticketToCancel}`, {
         method: 'DELETE',
       });
   
       if (response.ok) {
-        // Remove ticket from state
-        setTickets(tickets.filter(ticket => ticket.ticketID !== ticketID));
+        setTickets(tickets.filter(ticket => ticket.ticketID !== ticketToCancel));
+        setIsCancelDialogOpen(false);
       } else {
         throw new Error('Failed to cancel ticket');
       }
     } catch (err) {
       console.error('Error cancelling ticket:', err);
-      alert('Failed to cancel ticket');
+    } finally {
+      setIsCancelling(false);
+      setTicketToCancel(null);
     }
   };
 
@@ -113,6 +137,186 @@ export default function View() {
     setIsModalOpen(false);
     setSelectedTicket(null);
   };
+
+  // Add CancelDialog component
+  const CancelDialog = () => (
+    <Dialog open={isCancelDialogOpen} onOpenChange={() => setIsCancelDialogOpen(false)}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-bold text-black">Cancel Ticket</DialogTitle>
+          <DialogDescription className="text-zinc-600 text-xl">
+            Are you sure you want to cancel this ticket? This action cannot be undone.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="flex justify-end space-x-4 mt-6 ">
+          <Button
+            variant="outline"
+            onClick={() => setIsCancelDialogOpen(false)}
+            className="px-4 py-2 hover:bg-slate-800 hover:text-white text-black font-bold"
+          >
+            Keep Ticket
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={confirmCancel}
+            disabled={isCancelling}
+            className={`
+              px-6 py-3
+              bg-gradient-to-r from-red-500 to-red-700
+              hover:from-red-600 hover:to-red-800
+              text-white font-bold text-lg
+              rounded-lg
+              shadow-lg hover:shadow-xl
+              transform hover:scale-105
+              transition-all duration-200
+              disabled:opacity-50 disabled:cursor-not-allowed
+              flex items-center justify-center gap-2
+            `}
+          >
+            {isCancelling ? (
+              <>
+                <svg className="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                Cancelling...
+              </>
+            ) : (
+              'Cancel Ticket'
+            )}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+
+  // Add NoTicketsDialog component
+  const NoTicketsDialog = () => (
+    <Dialog open={showNoTicketsDialog} onOpenChange={() => setShowNoTicketsDialog(false)}>
+      <DialogContent className="sm:max-w-[425px] bg-white/95 backdrop-blur-sm">
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-bold text-gray-800 text-center">
+            No Tickets Found
+          </DialogTitle>
+          <DialogDescription className="text-center space-y-4">
+            <div className="p-6">
+              <svg
+                className="mx-auto h-24 w-24 text-gray-400 animate-bounce"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 10h.01M15 10h.01"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9.5 15.5c.574.919 1.912 2 4.5 2s3.926-1.081 4.5-2"
+                />
+              </svg>
+            </div>
+            <div className="space-y-3">
+              <p className="text-gray-800 text-xl font-semibold">
+                Oops! No tickets found
+              </p>
+              <p className="text-gray-600 text-base">
+                We couldn't find any tickets associated with <br/>
+                <span className="font-medium">this email address</span>
+              </p>
+            </div>
+          </DialogDescription>
+        </DialogHeader>
+        <div className="mt-8 flex justify-center">
+          <Button
+            onClick={() => setShowNoTicketsDialog(false)}
+            className="px-8 py-3 bg-gradient-to-r from-indigo-500 to-purple-600
+              hover:from-indigo-600 hover:to-purple-700
+              text-white font-semibold rounded-full
+              transform hover:scale-105 transition-all duration-200
+              shadow-lg hover:shadow-xl
+              flex items-center space-x-2"
+          >
+            <svg 
+              className="w-5 h-5" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={2} 
+                d="M15 19l-7-7 7-7" 
+              />
+            </svg>
+            <span>Try Another Email</span>
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+
+  // Add EmptyEmailDialog component
+  const EmptyEmailDialog = () => (
+    <Dialog open={showEmptyEmailDialog} onOpenChange={() => setShowEmptyEmailDialog(false)}>
+      <DialogContent className="sm:max-w-[425px] bg-white/95 backdrop-blur-sm">
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-bold text-amber-500 text-center">
+            Email Required
+          </DialogTitle>
+          <DialogDescription className="text-center space-y-4">
+            <div className="p-6">
+              <svg
+                className="mx-auto h-24 w-24 text-amber-500 animate-pulse"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
+              </svg>
+            </div>
+            <div className="space-y-3">
+              <p className="text-gray-800 text-xl font-semibold">
+                Please Enter Your Email
+              </p>
+              <p className="text-gray-600 text-base">
+                We need your email address to find your tickets
+              </p>
+            </div>
+          </DialogDescription>
+        </DialogHeader>
+        <div className="mt-6 flex justify-center">
+          <Button
+            onClick={() => setShowEmptyEmailDialog(false)}
+            className="px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600
+              hover:from-amber-600 hover:to-amber-700
+              text-white font-semibold rounded-lg
+              transform hover:scale-105 transition-all duration-200
+              shadow-lg hover:shadow-xl
+              flex items-center space-x-2"
+          >
+            <span>Got It</span>
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
 
   return (
     <div className="flex justify-center h-screen">
@@ -254,6 +458,9 @@ export default function View() {
           </div>
         </div>
       )}
+      <CancelDialog />
+      <NoTicketsDialog />
+      <EmptyEmailDialog />
     </div>
   );
 }

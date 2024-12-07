@@ -11,7 +11,12 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                     src={airportBackground}
                     alt="Airport Background"
                     quality={100}
-                    style={{objectFit: "cover"}}
+                    fill
+                    sizes="100vw"
+                    style={{
+                        objectFit: "cover",
+                        objectPosition: "center",
+                    }}
                     priority
                 />
             </div>
@@ -48,7 +53,7 @@ const styles = {
         top: 0,
         left: 0,
         width: '100%',
-        height: '100%',
+        height: '100vh',
         zIndex: -1,
     },
     nav: {
