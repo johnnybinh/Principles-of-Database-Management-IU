@@ -8,13 +8,18 @@ import org.example.backend.util.IDGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Isolation;
+import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Date;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
+import java.util.ConcurrentModificationException;
 
 @Service
+@Slf4j
 @Transactional
 public class TicketService {
 
@@ -42,6 +47,8 @@ public class TicketService {
     @Autowired
     private FlightBaseRepository flightBaseRepository;
 
+    private final Object idLock = new Object();
+
     public TicketService(TicketRepository ticketRepository,
                          PassengerRepository passengerRepository,
                          AirlineRepository airlineRepository,
@@ -58,8 +65,8 @@ public class TicketService {
         return ticketRepository.findAll();
     }
 
-    public Ticket getTicketById(Long id) {
-        return ticketRepository.findById(id).orElse(null);
+    public Ticket getTicketById(String id) {
+        return ticketRepository.findByTicketID(id);
     }
 
     public Ticket saveTicket(Ticket ticket) {
@@ -111,18 +118,24 @@ public class TicketService {
     private Booking convertToEntity(BookingDTO bookingDTO) {
         Booking booking = new Booking();
         
-        // Handle null BookingDTO
-        if (bookingDTO == null) {
-            booking.setBookingDate(Date.valueOf(LocalDateTime.now().toLocalDate()));
-            return booking;
-        }
-        
-        // Safe conversion with null checks
-        booking.setBookingDate(bookingDTO.getBookingDate() != null ? 
+        booking.setPaymentStatus("Pending");
+        booking.setBookingDate(bookingDTO != null && bookingDTO.getBookingDate() != null ? 
             bookingDTO.getBookingDate() : 
             Date.valueOf(LocalDateTime.now().toLocalDate()));
         
-        return booking;
+        if (bookingDTO != null && bookingDTO.getPaymentStatus() != null) {
+            booking.setPaymentStatus(bookingDTO.getPaymentStatus());
+        }
+        
+        return booking;  // Remove ID generation here
+    }
+    
+    private void validateBooking(Booking booking) {
+        if (booking.getBookingID() == null || 
+            booking.getBookingDate() == null || 
+            booking.getPaymentStatus() == null) {
+            throw new IllegalStateException("Booking missing required fields");
+        }
     }
 
     private Seat convertToEntity(SeatDTO seatDTO) {
@@ -163,60 +176,103 @@ public class TicketService {
         return idGenerator.generateID(lastId, "PA", 3);
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
+    protected String generateBookingID() {
+        String lastId = bookingRepository.findTopByOrderByBookingIDDesc()
+            .map(Booking::getBookingID)
+            .orElse("BK000");
+        
+        log.debug("Last booking ID found: {}", lastId);
+        String newId = idGenerator.generateID(lastId, "BK", 3);
+        log.debug("Generated new booking ID: {}", newId);
+        
+        return newId;
+    }
+
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public TicketDTO createTicket(TicketDTO ticketDTO) {
+        try {
+            return createTicketInternal(ticketDTO);
+        } catch (Exception e) {
+            log.error("Error creating ticket: ", e);
+            throw new RuntimeException("Failed to create ticket", e);
+        }
+
+    }
+
+    private TicketDTO createTicketInternal(TicketDTO ticketDTO) {
+        // Generate booking ID with synchronization
+        String bookingId;
+        synchronized (idLock) {
+            bookingId = generateBookingID();
+            // Verify booking doesn't exist
+            if (bookingRepository.findById(bookingId).isPresent()) {
+                throw new ConcurrentModificationException("Booking ID already exists: " + bookingId);
+            }
+        }
+        log.info("Creating new booking with ID: {}", bookingId);
+
+        // Validate flight info
         if (ticketDTO.getFlight() == null || 
             ticketDTO.getFlight().getAirline() == null || 
             ticketDTO.getFlight().getAirline().getAirlineName() == null) {
+            log.warn("Invalid flight or airline information");
             throw new IllegalArgumentException("Flight and airline information are required");
         }
 
-        // Convert and save passenger first
-        Passenger passenger = ticketDTO.getPassenger() != null ?
-                convertToEntity(ticketDTO.getPassenger()) :
-                new Passenger();
-        passenger = passengerRepository.save(passenger);
+        // Handle passenger with existing passport number
+        Passenger passenger;
+        if (ticketDTO.getPassenger() != null && ticketDTO.getPassenger().getPassportNumber() != null) {
+            passenger = passengerRepository.findByPassportNumber(ticketDTO.getPassenger().getPassportNumber())
+                    .orElseGet(() -> {
+                        Passenger newPassenger = convertToEntity(ticketDTO.getPassenger());
+                        return passengerRepository.save(newPassenger);
+                    });
+        } else {
+            passenger = new Passenger();
+            passenger = passengerRepository.save(passenger);
+        }
+        log.debug("Using passenger with ID: {}", passenger.getPassengerID());
 
-        // Create and save booking with passenger reference
+        // Create and save booking with synchronization
         Booking booking = convertToEntity(ticketDTO.getBooking());
-        booking.setBookingDate(Date.valueOf(LocalDateTime.now().toLocalDate()));
-        booking = bookingRepository.save(booking);
-
-        // Handle seat
-        Seat seat = ticketDTO.getSeat() != null ?
-                convertToEntity(ticketDTO.getSeat()) :
-                new Seat();
-        seat = seatRepository.save(seat);
-
-        // Handle flight base
-        FlightBase flightBase = ticketDTO.getFlight() != null ?
-                convertToEntity(ticketDTO.getFlight()) :
-                new FlightBase();
-        flightBase = flightBaseRepository.save(flightBase);
-
-        // Fetch and set IDs
-        String airlineID = getAirlineIdByName(flightBase.getAirline().getAirlineName());
-        Seat finalSeat = seat;
-        SeatClass seatClass = seatClassRepository.findByType(seat.getSeatClass().getClassType())
-                .orElseThrow(() -> new RuntimeException("Seat class not found with type: " + finalSeat.getSeatClass().getClassType()));
-
-        flightBase.getAirline().setAirlineID(airlineID);
-        seat.setSeatClass(seatClass);
-
-        // Create and save ticket with all references
+        booking.setBookingID(bookingId);
+        booking.setBookingDate(Date.valueOf(LocalDate.now()));
+        
+        synchronized (idLock) {
+            if (bookingRepository.findById(bookingId).isPresent()) {
+                throw new ConcurrentModificationException("Booking ID collision detected: " + bookingId);
+            }
+            booking = bookingRepository.save(booking);
+        }
+        log.debug("Booking saved with ID: {}", booking.getBookingID());
+        
+        // Create and save seat
+        Seat seat = null;
+        if (ticketDTO.getSeat() != null) {
+            seat = convertToEntity(ticketDTO.getSeat());
+            seat = seatRepository.save(seat);
+        }
+        log.debug("Seat created and saved: {}", seat);
+        
+        
+        // Create and save ticket
         Ticket ticket = new Ticket();
-        ticket.setPassenger(passenger);
         ticket.setBooking(booking);
+        ticket.setPassenger(passenger);
         ticket.setSeat(seat);
-        ticket.setFlightBase(flightBase);
         ticket.setFinalPrice(ticketDTO.getFinalPrice());
         ticket.setBaggageWeight(ticketDTO.getBaggageWeight());
-
+        
+        // Save the complete ticket
         ticket = ticketRepository.save(ticket);
+        log.debug("Ticket saved with dependencies");
 
         return convertToDTO(ticket);
     }
 
+    //============================================================================
+    // Conversion methods
     // Add convertToDTO method
     private TicketDTO convertToDTO(Ticket ticket) {
         return new TicketDTO(

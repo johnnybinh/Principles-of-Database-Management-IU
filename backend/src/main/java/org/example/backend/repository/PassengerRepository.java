@@ -21,4 +21,7 @@ public interface PassengerRepository extends JpaRepository<Passenger, Long> {
     @Query("SELECT p FROM Passenger p ORDER BY p.passengerID DESC LIMIT 1")
     Optional<Passenger> findTopByOrderByPassengerIDDesc();
 
+    @Query("SELECT p FROM Passenger p WHERE p.passportNumber = :passportNumber")
+    Optional<Passenger> findByPassportNumber(@Param("passportNumber") String passportNumber);
+
 }

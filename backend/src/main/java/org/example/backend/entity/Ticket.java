@@ -11,7 +11,6 @@ import lombok.Setter;
 public class Ticket {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ticketid", nullable = false, length=5)
     private String ticketID;
 

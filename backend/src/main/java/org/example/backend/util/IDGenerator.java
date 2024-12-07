@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class IDGenerator {
-
+    
     /**
      * Generates a new ID based on the last ID, prefix, and total digits.
      *
@@ -16,23 +16,19 @@ public class IDGenerator {
      */
     public String generateID(String lastId, String prefix, int digits) {
         try {
-            // If lastId is empty or null, start with first ID
-            if (lastId == null || lastId.isEmpty()) {
-                return prefix + String.format("%0" + digits + "d", 1);
-            }
-
-            // If lastId doesn't start with prefix, start with first ID
+            // Ensure the lastId starts with the prefix
             if (!lastId.startsWith(prefix)) {
-                return prefix + String.format("%0" + digits + "d", 1);
+                throw new IllegalArgumentException("Last ID does not start with the specified prefix.");
             }
-
-            // Extract numeric part after prefix
+            
+            // Extract numeric part after the prefix
             String numberPart = lastId.substring(prefix.length());
             int nextNumber = Integer.parseInt(numberPart) + 1;
-
+            
+            // Format with leading zeros
             return prefix + String.format("%0" + digits + "d", nextNumber);
-        } catch (Exception e) {
-            // If any error occurs, start with first ID
+        } catch (NumberFormatException | IndexOutOfBoundsException e) {
+            // If there's an error, start with the initial ID
             return prefix + String.format("%0" + digits + "d", 1);
         }
     }

@@ -12,7 +12,7 @@ INSERT INTO flight_schedule (scheduleid, statusid, departure_date, arrival_date,
 INSERT INTO airline (airlineid, airline_name) VALUES
 ('AL001', 'Vietnam Airlines'),
 ('AL002', 'Bamboo Airways'),
-('AL003', 'VietJet Air'); # if we need more data using the data in Airline.txt
+('AL003', 'VietJet Air');
 
 INSERT INTO airport (airportid, airport_name, country, city) VALUES
 ('AP001', 'Noi Bai International Airport', 'Vietnam', 'Hanoi'),
@@ -25,9 +25,9 @@ INSERT INTO seat_class (class_type, base_price) VALUES
 ('First Class', 3000000.00);
 
 INSERT INTO seat (seat_number, class_type) VALUES
-('SE001', 'First Class'),
-('SE002', 'First Class'),
-('SE003', 'First Class'); # if we need more data using the data in Seat.txt
+('SE001', 'Economy'),
+('SE002', 'Business'),
+('SE003', 'Economy');
 
 INSERT INTO passenger (passengerid, first_name, last_name, age, date_of_birth, nationality, passport_number, email, phone_number, address) VALUES
 ('PA001', 'Alice', 'Nguyen', 25, '1999-05-20', 'Vietnam', 'A12345678', 'alice@gmail.com', '0901234567', 'Hanoi, Vietnam'),
