@@ -21,7 +21,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 />
             </div>
             <nav style={styles.nav}>
-                <div style={styles.websiteName}>Booking</div>
+                <div style={styles.websiteName}>Skyline Serenade</div>
                 <ul style={styles.ul}>
                     <li style={styles.li}><Link href="/" style={styles.link}>Home</Link></li>
                     <li style={styles.li}><Link href="/data" style={styles.link}>Data</Link></li>
@@ -30,7 +30,24 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                     <li style={styles.li}><Link href="/employee" style={styles.link}>Employee</Link></li>
                 </ul>
                 <Link href="/flight" passHref>
-                    <button style={styles.flightButton}>Flight Now</button>
+                    <button className="
+                        px-6 py-3 
+                        bg-red-600 text-white 
+                        border-2 border-black 
+                        rounded-lg 
+                        text-xl font-bold 
+                        cursor-pointer 
+                        transition-all duration-300 ease-in-out 
+                        hover:bg-transparent 
+                        hover:text-white
+                        hover:bg-black 
+                        hover:-translate-y-0.5 
+                        hover:shadow-lg
+                        active:translate-y-0
+                        active:shadow-md
+                    ">
+                        Flight Now
+                    </button>
                 </Link>
             </nav>
 
