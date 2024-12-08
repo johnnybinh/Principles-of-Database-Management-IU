@@ -10,7 +10,7 @@ def main():
         else:
             class_types.append("Economy")
 
-    query = "INSERT INTO seats (seat_number, class_type) VALUES\n"
+    query = "INSERT INTO seat (seat_number, class_type) VALUES\n"
     values = ",\n".join([f"('{seat_numbers[i]}', '{class_types[i]}')" for i in range(300)])
     query += values + ";"
 

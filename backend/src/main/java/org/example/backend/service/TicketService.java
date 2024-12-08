@@ -74,11 +74,20 @@ public class TicketService {
     public void deleteTicketAndPassenger(String ticketID) {
         Ticket ticket = ticketRepository.findByTicketID(ticketID);
         if (ticket != null) {
+            // Get IDs before deletion
             String passengerID = ticket.getPassenger().getPassengerID();
+            String bookingID = ticket.getBooking().getBookingID();
+
+            // Delete ticket first
             ticketRepository.deleteByTicketID(ticketID);
+
+            // Delete passenger if no other tickets exist
             if (ticketRepository.countByPassengerID(passengerID) == 0) {
                 passengerRepository.deleteByPassengerID(passengerID);
             }
+
+            // Delete booking
+            bookingRepository.deleteByBookingID(bookingID);
         }
     }
 

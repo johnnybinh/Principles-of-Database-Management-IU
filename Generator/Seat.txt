@@ -1,4 +1,4 @@
-INSERT INTO seats (seat_number, class_type) VALUES
+INSERT INTO seat (seat_number, class_type) VALUES
 ('SE001', 'First Class'),
 ('SE002', 'First Class'),
 ('SE003', 'First Class'),
