@@ -10,11 +10,4 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface AirlineRepository extends JpaRepository<Airline, Long> {
-
-    @Query("SELECT a FROM Airline a WHERE a.airlineName = :airlineName")
-    List<Airline> findByAirlineName(@Param("airlineName") String airlineName);
-
-    @Query("SELECT a FROM Airline a WHERE a.airlineName = :airlineName")
-    Optional<Airline> findFirstByAirlineName(@Param("airlineName") String airlineName);
-}
+public interface AirlineRepository extends JpaRepository<Airline, Long> { }

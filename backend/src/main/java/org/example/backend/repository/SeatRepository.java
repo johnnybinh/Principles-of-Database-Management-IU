@@ -30,5 +30,4 @@ public interface SeatRepository extends CrudRepository<Seat, String> { // Assumi
             "      END")
     String findFirstByFlightIDAndClassTypeAndTicketIsNull(@Param("flightID") String flightID, @Param("classType") String classType);
 
-
 }

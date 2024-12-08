@@ -24,9 +24,6 @@ public class TicketService {
     private final PassengerRepository passengerRepository;
 
     @Autowired
-    private final SeatClassRepository seatClassRepository;
-
-    @Autowired
     private final BookingRepository bookingRepository;
 
     @Autowired
@@ -46,14 +43,12 @@ public class TicketService {
 
     public TicketService(TicketRepository ticketRepository,
                          PassengerRepository passengerRepository,
-                         SeatClassRepository seatClassRepository,
                          SeatRepository seatRepository,
                          BookingRepository bookingRepository,
                          FlightBaseRepository flightBaseRepository) {
         this.ticketRepository = ticketRepository;
         this.flightBaseRepository = flightBaseRepository;
         this.passengerRepository = passengerRepository;
-        this.seatClassRepository = seatClassRepository;
         this.seatRepository = seatRepository;
         this.bookingRepository = bookingRepository;
     }
@@ -123,37 +118,6 @@ public class TicketService {
         return booking;
     }
 
-    private Seat convertToEntity(SeatDTO seatDTO) {
-        Seat seat = new Seat();
-        seat.setSeatClass(seatClassRepository.findByType(seatDTO.getSeatClass().getClassType()).orElse(null));
-        return seat;
-    }
-
-    private FlightBase convertToEntity(FlightBaseDTO flightBaseDTO) {
-        FlightBase flightBase = new FlightBase();
-
-        // Handle null FlightBaseDTO
-        if (flightBaseDTO == null) {
-            return flightBase;
-        }
-
-        // Handle Airline conversion with null checks
-        if (flightBaseDTO.getAirline() != null && flightBaseDTO.getAirline().getAirlineName() != null) {
-            Airline airline = new Airline("Unknown");
-            airline.setAirlineName(flightBaseDTO.getAirline().getAirlineName());
-            flightBase.setAirline(airline);
-        }
-
-        // Handle FlightSchedule conversion with null checks
-        if (flightBaseDTO.getFlightSchedule() != null) {
-            FlightSchedule schedule = new FlightSchedule();
-            schedule.setScheduleID(flightBaseDTO.getFlightSchedule().getScheduleID());
-            flightBase.setFlightSchedule(schedule);
-        }
-
-        return flightBase;
-    }
-
     private SeatClass convertToEntity(SeatClassDTO seatClassDTO) {
         SeatClass seatClass = new SeatClass();
         seatClass.setClassType(seatClassDTO.getClassType());
@@ -181,26 +145,6 @@ public class TicketService {
                 .map(Ticket::getTicketID)
                 .orElse("TK000"); // Start from TK001 if no tickets exist
         return idGenerator.generateID(lastId, TICKET_PREFIX, ID_DIGITS);
-    }
-
-    // Find available seats
-    private Seat findAvailableSeat(String flightID, String classType) {
-        String seatNumber = seatRepository.findFirstByFlightIDAndClassTypeAndTicketIsNull(flightID, classType);
-
-        if (seatNumber == null) {
-            throw new RuntimeException("No available seats for flight " + flightID + " and class " + classType);
-        }
-
-        // Create SeatClass object directly
-        SeatClass seatClass = new SeatClass();
-        seatClass.setClassType(classType);
-
-        // Create seat with found number and class
-        Seat seat = new Seat();
-        seat.setSeatNumber(seatNumber);
-        seat.setSeatClass(seatClass);
-
-        return seat;
     }
 
     // ===========================================================================
