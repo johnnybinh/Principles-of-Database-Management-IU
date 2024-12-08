@@ -14,5 +14,4 @@ public interface SeatClassRepository extends JpaRepository<SeatClass, Long> {
     @Query("SELECT s FROM SeatClass s WHERE s.classType = :type")
     Optional<SeatClass> findByType(String type);
 
-
 }

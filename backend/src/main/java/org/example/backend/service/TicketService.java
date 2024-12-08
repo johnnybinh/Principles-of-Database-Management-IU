@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Date;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Random;
 
 @Service
 @Transactional
@@ -23,9 +22,6 @@ public class TicketService {
 
     @Autowired
     private final PassengerRepository passengerRepository;
-
-    @Autowired
-    private final AirlineRepository airlineRepository;
 
     @Autowired
     private final SeatClassRepository seatClassRepository;
@@ -50,13 +46,15 @@ public class TicketService {
 
     public TicketService(TicketRepository ticketRepository,
                          PassengerRepository passengerRepository,
-                         AirlineRepository airlineRepository,
                          SeatClassRepository seatClassRepository,
-                         BookingRepository bookingRepository) {
+                         SeatRepository seatRepository,
+                         BookingRepository bookingRepository,
+                         FlightBaseRepository flightBaseRepository) {
         this.ticketRepository = ticketRepository;
+        this.flightBaseRepository = flightBaseRepository;
         this.passengerRepository = passengerRepository;
-        this.airlineRepository = airlineRepository;
         this.seatClassRepository = seatClassRepository;
+        this.seatRepository = seatRepository;
         this.bookingRepository = bookingRepository;
     }
 
@@ -76,13 +74,6 @@ public class TicketService {
     public List<Ticket> getTicketsByEmail(String email) {
         return ticketRepository.findAllByPassengerID_Email(email);
     }
-
-    public String getAirlineIdByName(String airlineName) {
-        return airlineRepository.findFirstByAirlineName(airlineName)
-            .orElseThrow(() -> new RuntimeException("Airline not found with name: " + airlineName))
-            .getAirlineID();
-    }
-
 
     @Transactional
     public void deleteTicketAndPassenger(String ticketID) {
@@ -163,6 +154,12 @@ public class TicketService {
         return flightBase;
     }
 
+    private SeatClass convertToEntity(SeatClassDTO seatClassDTO) {
+        SeatClass seatClass = new SeatClass();
+        seatClass.setClassType(seatClassDTO.getClassType());
+        return seatClass;
+    }
+
     // ===========================================================================
     // Generate ID
     private String generatePassengerID() {
@@ -186,16 +183,30 @@ public class TicketService {
         return idGenerator.generateID(lastId, TICKET_PREFIX, ID_DIGITS);
     }
 
+    // Find available seats
+    private Seat findAvailableSeat(String flightID, String classType) {
+        String seatNumber = seatRepository.findFirstByFlightIDAndClassTypeAndTicketIsNull(flightID, classType);
+
+        if (seatNumber == null) {
+            throw new RuntimeException("No available seats for flight " + flightID + " and class " + classType);
+        }
+
+        // Create SeatClass object directly
+        SeatClass seatClass = new SeatClass();
+        seatClass.setClassType(classType);
+
+        // Create seat with found number and class
+        Seat seat = new Seat();
+        seat.setSeatNumber(seatNumber);
+        seat.setSeatClass(seatClass);
+
+        return seat;
+    }
+
     // ===========================================================================
     // Create Ticket
     @Transactional
     public Ticket createTicket(TicketDTO ticketDTO) {
-        if (ticketDTO.getFlight() == null ||
-            ticketDTO.getFlight().getAirline() == null ||
-            ticketDTO.getFlight().getAirline().getAirlineName() == null) {
-            throw new IllegalArgumentException("Flight and airline information are required");
-        }
-
         // Convert and save passenger with generated ID
         Passenger passenger = ticketDTO.getPassenger() != null ?
                 convertToEntity(ticketDTO.getPassenger()) :
@@ -215,10 +226,13 @@ public class TicketService {
         FlightBase flightBase = flightBaseRepository.findByFlightID(ticketDTO.getFlight().getFlightID());
 
         // Convert and save seat
-        Seat seat = ticketDTO.getSeat() != null ?
-                convertToEntity(ticketDTO.getSeat()) :
-                new Seat();
-        seat = seatRepository.save(seat);
+        String seatNumber = seatRepository.findFirstByFlightIDAndClassTypeAndTicketIsNull(
+                ticketDTO.getFlight().getFlightID(),
+                ticketDTO.getSeat().getSeatClass().getClassType()
+        );
+        Seat seat = new Seat();
+        seat.setSeatNumber(seatNumber);
+        seat.setSeatClass(convertToEntity(ticketDTO.getSeat().getSeatClass()));
 
         // Create and save the ticket with generated ID
         String ticketId = generateTicketID();
@@ -236,78 +250,6 @@ public class TicketService {
         ticket = ticketRepository.save(ticket);
 
         return ticket;
-    }
-
-    // Add helper conversion methods
-    private PassengerDTO convertToDTO(Passenger passenger) {
-        return new PassengerDTO(
-            passenger.getFirstName(),
-            passenger.getLastName(),
-            passenger.getAge(),
-            passenger.getEmail(),
-            passenger.getPhoneNumber(),
-            passenger.getPassportNumber(),
-            passenger.getDateOfBirth(),
-            passenger.getNationality(),
-            passenger.getAddress()
-        );
-    }
-
-    private BookingDTO convertToDTO(Booking booking) {
-        booking.setPaymentStatus("Paid"); // Set default payment status
-        return new BookingDTO(
-            booking.getBookingDate(),
-            booking.getPaymentStatus()
-        );
-    }
-
-    // Add SeatClass to DTO conversion
-    private SeatClassDTO convertToDTO(SeatClass seatClass) {
-        return new SeatClassDTO(
-            seatClass.getClassType()
-        );
-    }
-
-    // Update SeatDTO conversion
-    private SeatDTO convertToDTO(Seat seat) {
-        return new SeatDTO(
-            convertToDTO(seat.getSeatClass()) // Convert SeatClass to SeatClassDTO
-        );
-    }
-
-    // Add Airline to DTO conversion
-    private AirlineDTO convertToDTO(Airline airline) {
-        return new AirlineDTO(
-            airline.getAirlineName()
-        );
-    }
-
-    // Add FlightStatus to DTO conversion
-    private FlightStatusDTO convertToDTO(FlightStatus flightStatus) {
-        return new FlightStatusDTO(
-            flightStatus.getStatus()
-        );
-    }
-
-    // Update FlightSchedule to DTO conversion
-    private FlightScheduleDTO convertToDTO(FlightSchedule flightSchedule) {
-        return new FlightScheduleDTO(
-            convertToDTO(flightSchedule.getFlightStatus()),  // Convert FlightStatus to DTO
-            flightSchedule.getDepartureDate(),
-            flightSchedule.getArrivalDate(),
-            flightSchedule.getDeparture(),
-            flightSchedule.getArrival(),
-            flightSchedule.getFlightDuration()
-        );
-    }
-
-    // Add Airport to DTO conversion
-    private AirportDTO convertToDTO(Airport airport) {
-        return new AirportDTO(
-            airport.getAirportName(),
-            airport.getCity(),
-            airport.getCountry()
-        );
     }
 
 }
