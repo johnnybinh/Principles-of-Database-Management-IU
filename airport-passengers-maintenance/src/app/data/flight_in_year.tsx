@@ -112,6 +112,17 @@ const FlightInYear: React.FC = () => {
       .append("g")
       .attr("transform", `translate(50,${margin.top})`);
 
+    // Define clip path
+    svg
+      .append("defs")
+      .append("clipPath")
+      .attr("id", "clip")
+      .append("rect")
+      .attr("x", 0)
+      .attr("y", 0)
+      .attr("width", width)
+      .attr("height", height);
+
     const x = d3
       .scaleBand()
       .domain(filteredData.map((d) => d.Day))
@@ -161,6 +172,8 @@ const FlightInYear: React.FC = () => {
 
     // Bars logic
     svg
+      .append("g")
+      .attr("clip-path", "url(#clip)")
       .selectAll("rect")
       .data(filteredData)
       .join("rect")
@@ -194,7 +207,7 @@ const FlightInYear: React.FC = () => {
     svg.append("g").attr("class", "y-axis").call(d3.axisLeft(y));
     svg
       .append("text")
-      .attr("x", width / 2)
+      .attr("x", width / 3)
       .attr("y", -10)
       .attr("text-anchor", "middle")
       .text(`Flight Data from ${dateRange[0]} to ${dateRange[1]}`);
